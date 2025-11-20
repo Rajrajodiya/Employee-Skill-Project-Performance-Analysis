@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Prediction - ESPPA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-crystal-ball me-2"></i>AI Prediction
+        </h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cog me-2"></i>Prediction Parameters
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Model Selection -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="mb-3">
+                                <i class="fas fa-brain me-2"></i>Select Model
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model_type" id="random_forest" value="random_forest" checked>
+                                        <label class="form-check-label" for="random_forest">
+                                            <i class="fas fa-tree text-success me-2"></i>Random Forest
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model_type" id="logistic_regression" value="logistic_regression">
+                                        <label class="form-check-label" for="logistic_regression">
+                                            <i class="fas fa-chart-line text-primary me-2"></i>Logistic Regression
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model_type" id="linear_regression" value="linear_regression">
+                                        <label class="form-check-label" for="linear_regression">
+                                            <i class="fas fa-chart-bar text-warning me-2"></i>Linear Regression
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Employee Information -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h6>
+                            <div class="mb-3">
+                                <label for="{{ form.age.id_for_label }}" class="form-label">Age</label>
+                                {{ form.age }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.gender.id_for_label }}" class="form-label">Gender</label>
+                                {{ form.gender }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.education_level.id_for_label }}" class="form-label">Education Level</label>
+                                {{ form.education_level }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <i class="fas fa-briefcase me-2"></i>Work Information
+                            </h6>
+                            <div class="mb-3">
+                                <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                                {{ form.department }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.job_title.id_for_label }}" class="form-label">Job Title</label>
+                                {{ form.job_title }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.years_at_company.id_for_label }}" class="form-label">Years at Company</label>
+                                {{ form.years_at_company }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Performance Metrics -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-line me-2"></i>Performance Metrics
+                            </h6>
+                            <div class="mb-3">
+                                <label for="{{ form.monthly_salary.id_for_label }}" class="form-label">Monthly Salary ($)</label>
+                                {{ form.monthly_salary }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.work_hours_per_week.id_for_label }}" class="form-label">Work Hours per Week</label>
+                                {{ form.work_hours_per_week }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.projects_handled.id_for_label }}" class="form-label">Projects Handled</label>
+                                {{ form.projects_handled }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.overtime_hours.id_for_label }}" class="form-label">Overtime Hours</label>
+                                {{ form.overtime_hours }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <i class="fas fa-chart-pie me-2"></i>Additional Metrics
+                            </h6>
+                            <div class="mb-3">
+                                <label for="{{ form.sick_days.id_for_label }}" class="form-label">Sick Days</label>
+                                {{ form.sick_days }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.remote_work_frequency.id_for_label }}" class="form-label">Remote Work Frequency (%)</label>
+                                {{ form.remote_work_frequency }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.team_size.id_for_label }}" class="form-label">Team Size</label>
+                                {{ form.team_size }}
+                            </div>
+                            <div class="mb-3">
+                                <label for="{{ form.training_hours.id_for_label }}" class="form-label">Training Hours</label>
+                                {{ form.training_hours }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Career Development -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <i class="fas fa-star me-2"></i>Career Development
+                            </h6>
+                            <div class="mb-3">
+                                <label for="{{ form.promotions.id_for_label }}" class="form-label">Promotions</label>
+                                {{ form.promotions }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="mb-3">
+                                <i class="fas fa-heart me-2"></i>Satisfaction
+                            </h6>
+                            <div class="mb-3">
+                                <label for="{{ form.employee_satisfaction_score.id_for_label }}" class="form-label">Satisfaction Score (1-5)</label>
+                                {{ form.employee_satisfaction_score }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-magic me-2"></i>Generate Prediction
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Model Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Model Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <h6 class="mb-1">Random Forest</h6>
+                        <small class="text-muted">Best for complex patterns, high accuracy</small>
+                    </div>
+                    <div class="list-group-item">
+                        <h6 class="mb-1">Logistic Regression</h6>
+                        <small class="text-muted">Good for binary outcomes, interpretable</small>
+                    </div>
+                    <div class="list-group-item">
+                        <h6 class="mb-1">Linear Regression</h6>
+                        <small class="text-muted">Simple relationships, fast predictions</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Prediction Tips -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Prediction Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Provide accurate employee data</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Use realistic salary ranges</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Consider work-life balance metrics</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <small>Include career development factors</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

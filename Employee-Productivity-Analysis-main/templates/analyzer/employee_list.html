@@ -1,0 +1,604 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Employee List - ESPPA{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-users text-primary"></i>
+                    Employee List
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Employee List</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    {% if search_id and employees %}
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-user-check"></i>
+                        Employee Found
+                    </h5>
+                    <h3 class="fw-bold">{{ total_count }}</h3>
+                    <small class="text-muted">Search Result</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">
+                        <i class="fas fa-building"></i>
+                        Department
+                    </h5>
+                    <h3 class="fw-bold">{{ departments_count }}</h3>
+                    <small class="text-muted">Employee's Dept</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-warning">
+                        <i class="fas fa-chart-line"></i>
+                        Performance
+                    </h5>
+                    <h3 class="fw-bold">{{ avg_performance }}</h3>
+                    <small class="text-muted">Score</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-info">
+                        <i class="fas fa-rupee-sign"></i>
+                        Monthly Salary
+                    </h5>
+                    <h3 class="fw-bold">₹{{ avg_salary_inr|floatformat:0 }}</h3>
+                    <small class="text-muted">Employee's Salary</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif search_id and not employees %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No Results Found
+                    </h5>
+                    <h3 class="fw-bold">0</h3>
+                    <small class="text-muted">Try a different Employee ID</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">
+                        <i class="fas fa-search"></i>
+                        Search Employee
+                    </h5>
+                    <h3 class="fw-bold">By ID</h3>
+                    <small class="text-muted">Enter Employee ID</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">
+                        <i class="fas fa-user"></i>
+                        View Details
+                    </h5>
+                    <h3 class="fw-bold">Complete</h3>
+                    <small class="text-muted">Personal & Work Info</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-info">
+                        <i class="fas fa-print"></i>
+                        Print Report
+                    </h5>
+                    <h3 class="fw-bold">Available</h3>
+                    <small class="text-muted">After Search</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Search Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-search"></i>
+                        Search Employee
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{% url 'employee_list' %}" class="row g-3">
+                        <div class="col-md-8">
+                            <label for="search_id" class="form-label">Employee ID</label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       class="form-control" 
+                                       id="search_id" 
+                                       name="search_id" 
+                                       value="{{ search_id }}"
+                                       placeholder="Enter Employee ID (e.g., 1001, 1002, etc.)"
+                                       min="1"
+                                       required>
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i> Search Employee
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-refresh"></i> Clear Search
+                            </a>
+                        </div>
+                    </form>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            Enter an Employee ID to view detailed information about a specific employee.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    {% if search_id and employees %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-user-check"></i>
+                        Employee Details for ID: {{ search_id }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for employee in employees %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Basic Information</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Employee ID:</strong></td>
+                                    <td><span class="badge bg-secondary">{{ employee.employee_id }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Name:</strong></td>
+                                    <td>{{ employee.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Department:</strong></td>
+                                    <td><span class="badge bg-primary">{{ employee.department }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Job Title:</strong></td>
+                                    <td>{{ employee.job_title }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gender:</strong></td>
+                                    <td>{{ employee.gender }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Education Level:</strong></td>
+                                    <td>{{ employee.education_level }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hire Date:</strong></td>
+                                    <td>{{ employee.hire_date }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Performance & Work Details</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Age:</strong></td>
+                                    <td>{{ employee.age|floatformat:0 }} years</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Years at Company:</strong></td>
+                                    <td>{{ employee.years_at_company|floatformat:0 }} years</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Performance Score:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if employee.performance_score >= 4 %}success{% elif employee.performance_score >= 3 %}warning{% else %}danger{% endif %}">
+                                            {{ employee.performance_score|floatformat:1 }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Monthly Salary:</strong></td>
+                                    <td>₹{{ employee.monthly_salary_inr|floatformat:0 }} (INR)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Work Hours/Week:</strong></td>
+                                    <td>{{ employee.work_hours_per_week }} hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Projects Handled:</strong></td>
+                                    <td>{{ employee.projects_handled }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Overtime Hours:</strong></td>
+                                    <td>{{ employee.overtime_hours }} hours</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Work Environment</h6>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Sick Days:</strong></td>
+                                    <td>{{ employee.sick_days }} days</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Remote Work Frequency:</strong></td>
+                                    <td>{{ employee.remote_work_frequency|floatformat:1 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Team Size:</strong></td>
+                                    <td>{{ employee.team_size }} members</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Training Hours:</strong></td>
+                                    <td>{{ employee.training_hours }} hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Promotions:</strong></td>
+                                    <td>{{ employee.promotions }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Satisfaction Score:</strong></td>
+                                    <td>{{ employee.employee_satisfaction_score|floatformat:1 }}/5</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Resigned:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if employee.resigned %}danger{% else %}success{% endif %}">
+                                            {% if employee.resigned %}Yes{% else %}No{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="text-primary mb-3">Quick Actions</h6>
+                                    <button class="btn btn-outline-info mb-2 w-100" onclick="window.print()">
+                                        <i class="fas fa-print"></i> Print Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>  
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif search_id and not employees %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No Employee Found
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-user-times fa-3x text-muted mb-3"></i>
+                    <h5>No employee found with ID: {{ search_id }}</h5>
+                    <p class="text-muted">Please try searching with a different Employee ID.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        Search Instructions
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h5>Search for Employee Details</h5>
+                    <p class="text-muted">Enter an Employee ID above to view detailed information about a specific employee.</p>
+                    <div class="row mt-4">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                <h6>Personal Info</h6>
+                                <small class="text-muted">Age, Gender, Education</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-chart-line fa-2x text-success mb-2"></i>
+                                <h6>Performance</h6>
+                                <small class="text-muted">Scores, Projects, Hours</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-building fa-2x text-info mb-2"></i>
+                                <h6>Work Details</h6>
+                                <small class="text-muted">Department, Salary, Status</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Employee Detail Modals -->
+    {% for employee in employees %}
+    <div class="modal fade" id="employeeModal{{ employee.employee_id }}" tabindex="-1" aria-labelledby="employeeModalLabel{{ employee.employee_id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="employeeModalLabel{{ employee.employee_id }}">
+                        <i class="fas fa-user"></i>
+                        {{ employee.name }} - Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">Personal Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Employee ID:</strong></td>
+                                    <td>{{ employee.employee_id }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Name:</strong></td>
+                                    <td>{{ employee.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Age:</strong></td>
+                                    <td>{{ employee.age|floatformat:0 }} years</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gender:</strong></td>
+                                    <td>{{ employee.gender }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Education:</strong></td>
+                                    <td>{{ employee.education_level }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hire Date:</strong></td>
+                                    <td>{{ employee.hire_date }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-success">Work Information</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Department:</strong></td>
+                                    <td>{{ employee.department }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Job Title:</strong></td>
+                                    <td>{{ employee.job_title }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Years at Company:</strong></td>
+                                    <td>{{ employee.years_at_company|floatformat:0 }} years</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Performance Score:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if employee.performance_score >= 4 %}success{% elif employee.performance_score >= 3 %}warning{% else %}danger{% endif %}">
+                                            {{ employee.performance_score|floatformat:1 }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Monthly Salary:</strong></td>
+                                    <td>₹{{ employee.monthly_salary_inr|floatformat:0 }} (INR)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Resigned:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if employee.resigned %}danger{% else %}success{% endif %}">
+                                            {% if employee.resigned %}Yes{% else %}No{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="text-warning">Performance Metrics</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Work Hours/Week:</strong></td>
+                                    <td>{{ employee.work_hours_per_week }} hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Projects Handled:</strong></td>
+                                    <td>{{ employee.projects_handled }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Overtime Hours:</strong></td>
+                                    <td>{{ employee.overtime_hours }} hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sick Days:</strong></td>
+                                    <td>{{ employee.sick_days }} days</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Remote Work Frequency:</strong></td>
+                                    <td>{{ employee.remote_work_frequency }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Team Size:</strong></td>
+                                    <td>{{ employee.team_size }} members</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-info">Additional Factors</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Training Hours:</strong></td>
+                                    <td>{{ employee.training_hours }} hours</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Promotions:</strong></td>
+                                    <td>{{ employee.promotions }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Satisfaction Score:</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if employee.employee_satisfaction_score >= 4 %}success{% elif employee.employee_satisfaction_score >= 3 %}warning{% else %}danger{% endif %}">
+                                            {{ employee.employee_satisfaction_score|floatformat:1 }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    <a href="{% url 'prediction' %}" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i>
+                        Make Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-home"></i>
+                Back to Dashboard
+            </a>
+            <a href="{% url 'analysis' %}" class="btn btn-primary me-2">
+                <i class="fas fa-chart-bar"></i>
+                View Analysis
+            </a>
+            <a href="{% url 'prediction' %}" class="btn btn-success">
+                <i class="fas fa-calculator"></i>
+                Make Predictions
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 
+
+{% block extra_js %}
+<script>
+// Ensure modals close properly
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all modals
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        // Initialize Bootstrap modal
+        new bootstrap.Modal(modal);
+        
+        // Close modal when clicking on close button
+        const closeButtons = modal.querySelectorAll('[data-bs-dismiss="modal"]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+        });
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const openModal = document.querySelector('.modal.show');
+            if (openModal) {
+                const modalInstance = bootstrap.Modal.getInstance(openModal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            }
+        }
+    });
+    
+    // Ensure proper modal behavior for action buttons
+    const actionButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+    actionButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetModal = this.getAttribute('data-bs-target');
+            const modal = document.querySelector(targetModal);
+            if (modal) {
+                const modalInstance = new bootstrap.Modal(modal);
+                modalInstance.show();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
