@@ -31,6 +31,9 @@ node_modules/
 # Runtime logs
 logs/
 
+# Old project structure
+Employee-Productivity-Analysis-main/
+
 # Project artifacts
 package.json
 package-lock.json
