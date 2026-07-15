@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Model Analysis - ESPPA{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-area text-success"></i>
+                    Model Analysis
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Model Analysis</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Performance Comparison -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy"></i>
+                        Model Performance Comparison
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if performances %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Model</th>
+                                        <th>R² Score</th>
+                                        <th>MSE</th>
+                                        <th>RMSE</th>
+                                        <th>MAE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for model_name, metrics in performances.items %}
+                                    <tr>
+                                        <td><strong>{{ model_name }}</strong></td>
+                                        <td>
+                                            <span class="badge bg-{% if metrics.r2_score > 0.8 %}success{% elif metrics.r2_score > 0.6 %}warning{% else %}danger{% endif %}">
+                                                {{ metrics.r2_score }}
+                                            </span>
+                                        </td>
+                                        <td>{{ metrics.mse }}</td>
+                                        <td>{{ metrics.rmse }}</td>
+                                        <td>{{ metrics.mae }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-chart-area fa-3x mb-3"></i>
+                            <p>No model performance data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-bar"></i>
+                        R² Score Comparison
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="r2Chart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-chart-line"></i>
+                        Error Metrics Comparison
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="errorChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Insights -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-lightbulb"></i>
+                        Model Insights
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-tree"></i> Random Forest</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Best for performance prediction</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Handles non-linear relationships</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Robust to outliers</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>High accuracy and precision</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> Logistic Regression</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Best for classification tasks</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Predicts resignation probability</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Interpretable results</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Good for binary outcomes</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> Linear Regression</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Simple and interpretable</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Good baseline model</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Fast training and prediction</li>
+                                        <li><i class="fas fa-check-circle text-success me-2"></i>Linear relationships only</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2">
+                <i class="fas fa-home"></i>
+                Back to Dashboard
+            </a>
+            <a href="{% url 'prediction' %}" class="btn btn-primary me-2">
+                <i class="fas fa-calculator"></i>
+                Make Predictions
+            </a>
+            <a href="{% url 'analysis' %}" class="btn btn-success">
+                <i class="fas fa-chart-bar"></i>
+                View Analysis
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if performances %}
+    // R² Score Chart
+    const r2Ctx = document.getElementById('r2Chart').getContext('2d');
+    const r2Chart = new Chart(r2Ctx, {
+        type: 'bar',
+        data: {
+            labels: [{% for model_name, metrics in performances.items %}'{{ model_name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'R² Score',
+                data: [{% for model_name, metrics in performances.items %}{{ metrics.r2_score }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 205, 86, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 205, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'R² Score Comparison'
+                }
+            }
+        }
+    });
+
+    // Error Metrics Chart
+    const errorCtx = document.getElementById('errorChart').getContext('2d');
+    const errorChart = new Chart(errorCtx, {
+        type: 'line',
+        data: {
+            labels: [{% for model_name, metrics in performances.items %}'{{ model_name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'MSE',
+                data: [{% for model_name, metrics in performances.items %}{{ metrics.mse }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'RMSE',
+                data: [{% for model_name, metrics in performances.items %}{{ metrics.rmse }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                tension: 0.1
+            }, {
+                label: 'MAE',
+                data: [{% for model_name, metrics in performances.items %}{{ metrics.mae }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                borderColor: 'rgba(255, 205, 86, 1)',
+                backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Error Metrics Comparison'
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %} 
