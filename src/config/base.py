@@ -134,6 +134,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #  Logging
 # ═════════════════════════════════════════════════════════════════════════════
 
+# Ensure logs directory exists at startup
+LOGS_DIR = PROJECT_ROOT / 'logs'
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
