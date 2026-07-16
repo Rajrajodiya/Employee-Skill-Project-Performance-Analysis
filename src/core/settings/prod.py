@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 from .base import *  # noqa: F401, F403
 
 # ── Security overrides ───────────────────────────────────────────────────────
-DEBUG = False
+DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() in ('true', '1', 'yes')
 
 # ── Database (PostgreSQL via DATABASE_URL or individual env vars) ────────────
 # Supabase uses DATABASE_URL format:

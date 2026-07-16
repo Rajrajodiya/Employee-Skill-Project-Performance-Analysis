@@ -74,7 +74,9 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(PROJECT_ROOT, 'src', 'templates'),
+            os.path.join(BASE_DIR, 'templates'),
+            # Explicit path to esppa app templates (Vercel may not auto-discover via APP_DIRS)
+            os.path.join(APPS_DIR, 'esppa', 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {

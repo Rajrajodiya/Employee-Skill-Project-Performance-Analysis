@@ -28,6 +28,9 @@ drf-spectacular>=0.27.0
 # ── Environment Management ────────────────────────────────────────────────────
 python-decouple>=3.8            # Required by settings/base.py at module level
 
+# ── Image Processing ──────────────────────────────────────────────────────────
+Pillow>=10.0.0                    # Required by UserProfile.profile_picture ImageField
+
 # ── Production Serving ────────────────────────────────────────────────────────
 whitenoise>=6.5.0                # Static file serving in production
 psycopg2-binary>=2.9.0           # PostgreSQL adapter (used by prod settings)
