@@ -5,10 +5,9 @@ from typing import Any, Dict
 
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 
 from apps.esppa.models import Analysis, Prediction
-from apps.esppa.views import _get_data_service, _get_employee_service
+from apps.esppa.views import _get_data_service, _get_employee_service, _safe_render
 
 logger = logging.getLogger(__name__)
 
@@ -16,21 +15,14 @@ logger = logging.getLogger(__name__)
 @login_required
 def dashboard_view(request):
     """Dashboard with key metrics, department data, and recent activity."""
-    try:
+
+    def _build_context() -> Dict[str, Any]:
         data_service = _get_data_service()
         employee_service = _get_employee_service()
         df = data_service.load_csv()
         metrics = employee_service.build_dashboard_metrics(df)
 
-        recent_predictions = Prediction.objects.filter(
-            created_by=request.user,
-        ).order_by('-created_at')[:5]
-
-        recent_analyses = Analysis.objects.filter(
-            created_by=request.user,
-        ).order_by('-created_at')[:5]
-
-        context: Dict[str, Any] = {
+        return {
             'total_employees': metrics.total_employees,
             'avg_performance': metrics.avg_performance,
             'avg_salary_inr': metrics.avg_salary_inr,
@@ -52,16 +44,18 @@ def dashboard_view(request):
             'high_salary': metrics.high_salary,
             'medium_salary': metrics.medium_salary,
             'low_salary': metrics.low_salary,
-            'recent_predictions': recent_predictions,
-            'recent_analyses': recent_analyses,
+            'recent_predictions': Prediction.objects.filter(
+                created_by=request.user,
+            ).order_by('-created_at')[:5],
+            'recent_analyses': Analysis.objects.filter(
+                created_by=request.user,
+            ).order_by('-created_at')[:5],
         }
-        return render(request, 'esppa/dashboard.html', context)
 
-    except FileNotFoundError as exc:
-        logger.exception("Dashboard data not found")
-        messages.error(request, 'Employee data file not found. Please ensure data is imported.')
-        return render(request, 'esppa/dashboard.html', {})
-    except (ValueError, KeyError) as exc:
-        logger.exception("Dashboard data processing error")
-        messages.error(request, f'Error processing dashboard data: {exc}')
-        return render(request, 'esppa/dashboard.html', {})
+    return _safe_render(
+        request,
+        'esppa/dashboard.html',
+        _build_context,
+        error_message='Error processing dashboard data.',
+        log_message='Dashboard generation error',
+    )

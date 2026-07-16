@@ -12,7 +12,6 @@ from apps.esppa.forms import (
     UserRegistrationForm,
     UserProfileForm,
     PredictionForm,
-    AnalysisForm,
 )
 
 
@@ -218,45 +217,3 @@ class TestPredictionForm:
         assert 'employee_satisfaction_score' in form.errors
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-#  AnalysisForm Tests
-# ═════════════════════════════════════════════════════════════════════════════
-
-
-class TestAnalysisForm:
-    """Test analysis form validation."""
-
-    def test_valid_analysis_form(self):
-        form = AnalysisForm(data={
-            'analysis_type': 'department',
-            'chart_type': 'bar',
-        })
-        assert form.is_valid()
-
-    @pytest.mark.parametrize('analysis_type', [
-        'department', 'performance', 'salary', 'overtime',
-        'satisfaction', 'overall',
-    ])
-    def test_all_analysis_types(self, analysis_type):
-        form = AnalysisForm(data={
-            'analysis_type': analysis_type,
-            'chart_type': 'bar',
-        })
-        assert form.is_valid()
-
-    @pytest.mark.parametrize('chart_type', [
-        'bar', 'histogram', 'pie', 'box', 'heatmap', 'scatter', 'line',
-    ])
-    def test_all_chart_types(self, chart_type):
-        form = AnalysisForm(data={
-            'analysis_type': 'department',
-            'chart_type': chart_type,
-        })
-        assert form.is_valid()
-
-    def test_invalid_analysis_type(self):
-        form = AnalysisForm(data={
-            'analysis_type': 'invalid_type',
-            'chart_type': 'bar',
-        })
-        assert not form.is_valid()

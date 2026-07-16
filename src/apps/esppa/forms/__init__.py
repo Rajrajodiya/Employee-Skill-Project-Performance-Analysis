@@ -4,6 +4,4 @@
 from .registration_forms import UserRegistrationForm
 from .profile_forms import UserProfileForm
 from .prediction_forms import PredictionForm
-from .analysis_forms import AnalysisForm
-
-__all__ = ['UserRegistrationForm', 'UserProfileForm', 'PredictionForm', 'AnalysisForm']
+__all__ = ['UserRegistrationForm', 'UserProfileForm', 'PredictionForm']

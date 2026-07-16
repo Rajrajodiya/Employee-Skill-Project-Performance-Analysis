@@ -1,19 +1,13 @@
 """ESPPA REST API — split by resource (user, employee, analysis, prediction, dashboard, models).
 
-Shared service instances live here and are imported by individual view modules.
+Shared service instances imported from core.deps (FastAPI DI pattern).
 """
 
-import logging
+from core.deps import get_data_service, get_ml_service, get_employee_service
 
-from apps.esppa.services.data_service import DataService
-from apps.esppa.services.ml_service import MLService
-from apps.esppa.services.employee_service import EmployeeService
-
-logger = logging.getLogger(__name__)
-
-_data_service = DataService()
-_ml_service = MLService(_data_service)
-_employee_service = EmployeeService()
+_data_service = get_data_service()
+_ml_service = get_ml_service()
+_employee_service = get_employee_service()
 
 # ── Re-export all ViewSets ─────────────────────────────────────────────────
 from .user_views import UserViewSet, UserProfileViewSet               # noqa: E402, F401
@@ -28,3 +22,4 @@ __all__ = [
     'AnalysisViewSet', 'PredictionViewSet', 'DashboardViewSet',
     'ModelAnalysisViewSet',
 ]
+

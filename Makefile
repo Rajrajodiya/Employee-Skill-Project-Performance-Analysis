@@ -55,3 +55,36 @@ docker-down: ## Stop Docker containers
 
 check: ## Run Django system checks
 	python src/manage.py check --deploy
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  DVC (Data Version Control)
+# ═════════════════════════════════════════════════════════════════════════════
+
+dvc-init: ## Initialize DVC (run once per project)
+	dvc init
+
+dvc-track: ## Track dataset and models with DVC
+	dvc add static/employee_data.csv
+	dvc add src/apps/esppa/models/
+
+dvc-push: ## Push data to DVC remote
+	dvc push
+
+dvc-pull: ## Pull data from DVC remote
+	dvc pull
+
+dvc-status: ## Check DVC status
+	dvc status
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  Vercel Deployment
+# ═════════════════════════════════════════════════════════════════════════════
+
+vercel-dev: ## Run Vercel development server locally
+	vercel dev
+
+vercel-deploy: ## Deploy to Vercel production
+	vercel --prod
+
+vercel-deploy-preview: ## Deploy preview to Vercel
+	vercel

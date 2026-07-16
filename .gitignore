@@ -42,3 +42,20 @@ server.log
 
 # Dataset (raw source data)
 DATASET/
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  DVC (Data Version Control)
+# ═════════════════════════════════════════════════════════════════════════════
+# DVC internal cache — actual data stored in .dvc/remote or cloud
+.dvc/cache/
+.dvc/tmp/
+
+# DVC-managed data files — tracked via .dvc pointer files, NOT git
+# These are auto-added by dvc add — do not edit manually
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  Vercel
+# ═════════════════════════════════════════════════════════════════════════════
+.vercel/
+.env.local
+.env.production.local

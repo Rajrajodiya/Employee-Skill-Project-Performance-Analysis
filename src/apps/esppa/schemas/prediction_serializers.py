@@ -5,6 +5,9 @@ Prediction serializers — single responsibility: prediction data serialization 
 from rest_framework import serializers
 
 from apps.esppa.models import Prediction
+from apps.esppa.services.config import (
+    GENDER_CHOICES, EDUCATION_CHOICES, DEPARTMENT_CHOICES, JOB_TITLE_CHOICES,
+)
 
 
 class PredictionSerializer(serializers.ModelSerializer):
@@ -31,23 +34,10 @@ class PredictionSerializer(serializers.ModelSerializer):
 class PredictionInputSerializer(serializers.Serializer):
     model_type = serializers.ChoiceField(choices=Prediction.MODEL_TYPES)
     age = serializers.IntegerField(min_value=18, max_value=70)
-    gender = serializers.ChoiceField(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
-    education_level = serializers.ChoiceField(choices=[
-        ('High School', 'High School'), ('Bachelor', 'Bachelor'),
-        ('Master', 'Master'), ('PhD', 'PhD'),
-    ])
-    department = serializers.ChoiceField(choices=[
-        ('IT', 'IT'), ('Finance', 'Finance'), ('Marketing', 'Marketing'),
-        ('Sales', 'Sales'), ('HR', 'HR'), ('Operations', 'Operations'),
-        ('Customer Support', 'Customer Support'), ('Engineering', 'Engineering'),
-        ('Research', 'Research'),
-    ])
-    job_title = serializers.ChoiceField(choices=[
-        ('Specialist', 'Specialist'), ('Developer', 'Developer'),
-        ('Analyst', 'Analyst'), ('Manager', 'Manager'),
-        ('Engineer', 'Engineer'), ('Consultant', 'Consultant'),
-        ('Technician', 'Technician'),
-    ])
+    gender = serializers.ChoiceField(choices=GENDER_CHOICES)
+    education_level = serializers.ChoiceField(choices=EDUCATION_CHOICES)
+    department = serializers.ChoiceField(choices=DEPARTMENT_CHOICES)
+    job_title = serializers.ChoiceField(choices=JOB_TITLE_CHOICES)
     years_at_company = serializers.IntegerField(min_value=0)
     monthly_salary = serializers.IntegerField(min_value=0)
     work_hours_per_week = serializers.IntegerField(min_value=0, max_value=80)

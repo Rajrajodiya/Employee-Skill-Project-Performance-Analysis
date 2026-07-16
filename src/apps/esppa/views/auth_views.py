@@ -12,14 +12,15 @@ logger = logging.getLogger(__name__)
 
 
 def register_view(request):
-    """User registration view."""
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, 'Registration successful! Welcome to ESPPA.')
-            return redirect('dashboard')
-    else:
-        form = UserRegistrationForm()
-    return render(request, 'esppa/register.html', {'form': form})
+    """User registration view. Early return for GET."""
+    if request.method != 'POST':
+        return render(request, 'esppa/register.html', {'form': UserRegistrationForm()})
+
+    form = UserRegistrationForm(request.POST)
+    if not form.is_valid():
+        return render(request, 'esppa/register.html', {'form': form})
+
+    user = form.save()
+    login(request, user)
+    messages.success(request, 'Registration successful! Welcome to ESPPA.')
+    return redirect('dashboard')

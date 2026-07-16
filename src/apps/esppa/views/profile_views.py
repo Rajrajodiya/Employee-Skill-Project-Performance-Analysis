@@ -14,22 +14,28 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def profile_view(request):
-    """User profile view and edit."""
+    """User profile view and edit. Early return for GET."""
     userprofile, _ = UserProfile.objects.get_or_create(user=request.user)
 
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('profile')
-    else:
-        form = UserProfileForm(instance=userprofile)
+    if request.method != 'POST':
+        return render(request, 'esppa/profile.html', {
+            'form': UserProfileForm(instance=userprofile),
+            'recent_predictions': Prediction.objects.filter(
+                created_by=request.user).order_by('-created_at')[:10],
+            'recent_analyses': Analysis.objects.filter(
+                created_by=request.user).order_by('-created_at')[:10],
+        })
 
-    return render(request, 'esppa/profile.html', {
-        'form': form,
-        'recent_predictions': Prediction.objects.filter(
-            created_by=request.user).order_by('-created_at')[:10],
-        'recent_analyses': Analysis.objects.filter(
-            created_by=request.user).order_by('-created_at')[:10],
-    })
+    form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+    if not form.is_valid():
+        return render(request, 'esppa/profile.html', {
+            'form': form,
+            'recent_predictions': Prediction.objects.filter(
+                created_by=request.user).order_by('-created_at')[:10],
+            'recent_analyses': Analysis.objects.filter(
+                created_by=request.user).order_by('-created_at')[:10],
+        })
+
+    form.save()
+    messages.success(request, 'Profile updated successfully!')
+    return redirect('profile')
