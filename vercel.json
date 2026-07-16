@@ -5,7 +5,7 @@
   "functions": {
     "src/core/wsgi.py": {
       "maxDuration": 60,
-      "includeFiles": "src/**/*.html,static/**"
+      "includeFiles": "static/**"
     }
   },
   "routes": [
