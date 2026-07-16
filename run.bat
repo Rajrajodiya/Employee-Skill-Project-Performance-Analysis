@@ -23,13 +23,13 @@ echo.
 echo ╔══════════════════════════════════════════════════════════╗
 echo ║        ESPPA - Development Server Starting...            ║
 echo ╠══════════════════════════════════════════════════════════╣
-echo ║  URL:  http://127.0.0.1:8000                            ║
-echo ║  API:  http://127.0.0.1:8000/api/docs/                  ║
+echo ║  URL:   http://127.0.0.1:8000                           ║
+echo ║  API:   http://127.0.0.1:8000/api/docs/                 ║
 echo ║  Admin: http://127.0.0.1:8000/admin/                    ║
 echo ╚══════════════════════════════════════════════════════════╝
 echo.
 
-python manage.py runserver %*
+python src/manage.py runserver %*
 
 if %ERRORLEVEL% NEQ 0 (
     echo.

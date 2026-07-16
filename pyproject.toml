@@ -35,7 +35,7 @@ source = ["src"]
 omit = ["*/tests/*", "*/migrations/*"]
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "core.settings.dev"
+DJANGO_SETTINGS_MODULE = "core.settings.base"
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
 testpaths = ["src/apps/esppa/tests"]
 pythonpath = ["src"]

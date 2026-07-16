@@ -1,23 +1,27 @@
 """
-Base Django settings for ESPPA project.
+Django settings for ESPPA project.
 
-All environment-specific settings should override values from this module.
-Never use this file directly — use config.dev or config.prod instead.
+All configuration in one file. Use environment variables to switch
+between development and production modes.
+
+Environment variables:
+  DJANGO_DEBUG        Set to 'true' or '1' to enable debug mode (default: false)
+  DJANGO_SECRET_KEY   Django secret key (default: development-only fallback)
+  ALLOWED_HOSTS       Comma-separated list of allowed hosts
+  DATABASE_URL        Full PostgreSQL connection string (optional, uses SQLite otherwise)
+  DB_*                Individual database env vars (DB_ENGINE, DB_NAME, etc.)
 """
 
-from pathlib import Path
 import os
 import sys
+import importlib.util
+from pathlib import Path
+from urllib.parse import urlparse, unquote
 from decouple import config, Csv
 
 # ── Paths ────────────────────────────────────────────────────────────────────
-# Source root: src/
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-# Project root: one level up from src/
 PROJECT_ROOT = BASE_DIR.parent
-
-# Ensure apps/ directory is on the Python path
 APPS_DIR = BASE_DIR / 'apps'
 if str(APPS_DIR) not in sys.path:
     sys.path.insert(0, str(APPS_DIR))
@@ -27,7 +31,7 @@ if str(APPS_DIR) not in sys.path:
 # ═════════════════════════════════════════════════════════════════════════════
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DJANGO_DEBUG', default='false', cast=bool) or config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -58,8 +62,16 @@ LOCAL_APPS = [
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
+# Add django-extensions when available (dev convenience)
+if importlib.util.find_spec('django_extensions'):
+    INSTALLED_APPS += ['django_extensions']
+
+# Whitenoise for static file serving
+INSTALLED_APPS.insert(0, 'whitenoise.runserver_nostatic')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,7 +86,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates'),
             os.path.join(APPS_DIR, 'esppa', 'templates'),
         ],
         'APP_DIRS': True,
@@ -95,12 +106,31 @@ WSGI_APPLICATION = 'core.wsgi.application'
 #  Database
 # ═════════════════════════════════════════════════════════════════════════════
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': PROJECT_ROOT / 'db.sqlite3',
+_database_url = os.environ.get('DATABASE_URL')
+if _database_url:
+    parsed = urlparse(_database_url)
+    db_name = parsed.path.lstrip('/')
+    engine = 'django.db.backends.postgresql'
+    _user = unquote(parsed.username) if parsed.username else parsed.username
+    _password = unquote(parsed.password) if parsed.password else parsed.password
+    DATABASES = {
+        'default': {
+            'ENGINE': engine,
+            'NAME': db_name,
+            'USER': _user,
+            'PASSWORD': _password,
+            'HOST': parsed.hostname,
+            'PORT': parsed.port or '5432',
+            'OPTIONS': {'sslmode': 'require'},
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': PROJECT_ROOT / 'db.sqlite3',
+        }
+    }
 
 # ═════════════════════════════════════════════════════════════════════════════
 #  Password Validation
@@ -132,10 +162,31 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
+STORAGES = {
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(PROJECT_ROOT, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  HTTPS & Security (only when DEBUG is False)
+# ═════════════════════════════════════════════════════════════════════════════
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+
+# Console email backend for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ═════════════════════════════════════════════════════════════════════════════
 #  Logging
@@ -162,24 +213,24 @@ LOGGING = {
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(PROJECT_ROOT, 'server.log'),
-            'maxBytes': 10 * 1024 * 1024,  # 10 MB
+            'maxBytes': 10 * 1024 * 1024,
             'backupCount': 3,
             'formatter': 'verbose',
         },
     },
     'root': {
         'handlers': ['console', 'file'],
-        'level': 'INFO',
+        'level': 'WARNING' if not DEBUG else 'INFO',
     },
     'loggers': {
         'django': {
             'handlers': ['console', 'file'],
-            'level': 'INFO',
+            'level': 'WARNING' if not DEBUG else 'INFO',
             'propagate': False,
         },
         'esppa': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'level': 'INFO' if not DEBUG else 'DEBUG',
             'propagate': False,
         },
     },

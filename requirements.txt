@@ -1,5 +1,5 @@
 # ═════════════════════════════════════════════════════════════════════════════
-#  ESPPA — Production Requirements (also used by Vercel)
+#  ESPPA — Project Dependencies
 #  Local dev: add requirements-dev.txt on top of this
 # ═════════════════════════════════════════════════════════════════════════════
 

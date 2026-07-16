@@ -37,9 +37,8 @@ _employee_service: "Optional[EmployeeService]" = None
 def _init_services() -> None:
     """Initialize all services exactly once (thread-safe).
 
-    Lazy imports allow the app to boot without ML libraries installed
-    (pandas, numpy, scikit-learn, xgboost, matplotlib). This keeps the
-    Vercel preview bundle under the 500 MB limit.
+    Lazy imports allow the app to boot gracefully even when ML libraries
+    (pandas, numpy, scikit-learn, xgboost, matplotlib) are not installed.
     """
     global _data_service, _ml_service, _employee_service, _initialised
     if _initialised:

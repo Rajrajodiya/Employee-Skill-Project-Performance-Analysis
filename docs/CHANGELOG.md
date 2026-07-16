@@ -10,7 +10,7 @@ All notable changes to the ESPPA project will be documented in this file.
 - ML Service with Random Forest, XGBoost, and Neural Network models
 - 5-fold cross-validation for robust model evaluation
 - DVC (Data Version Control) for dataset and ML model versioning
-- Vercel deployment configuration with Supabase PostgreSQL
+- Supabase PostgreSQL database configuration
 - 108 unit tests across models, forms, views, API, and services
 - CI/CD pipeline with GitHub Actions (lint, test, security check)
 - MIT License, Contributing Guide, and Code of Conduct

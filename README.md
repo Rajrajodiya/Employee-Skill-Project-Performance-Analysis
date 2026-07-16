@@ -27,13 +27,12 @@
 | 👤 **User Management** | Registration, profiles, role-based access control |
 | 📱 **Responsive Design** | Apple-inspired UI with Tailwind CSS |
 | 🐳 **Docker Ready** | Containerized deployment with Gunicorn |
-| 🚀 **Vercel Deploy** | Serverless-ready with PostgreSQL (Supabase) |
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    Vercel / Docker                        │
+│                        Docker                            │
 │  ┌──────────┐  ┌──────────┐  ┌──────────────────────┐   │
 │  │  HTML     │  │  REST     │  │  Swagger/OpenAPI     │   │
 │  │  Views    │  │  API      │  │  Docs                │   │
@@ -89,7 +88,7 @@ python src/manage.py runserver
 | **API Docs** | Swagger UI, ReDoc via drf-spectacular |
 | **Database** | SQLite (dev), PostgreSQL via Supabase (prod) |
 | **Container** | Docker, Gunicorn |
-| **DevOps** | GitHub Actions CI/CD, Vercel |
+| **DevOps** | GitHub Actions CI/CD |
 | **Data Versioning** | DVC (Data Version Control) |
 
 ## 📖 Documentation
@@ -129,18 +128,6 @@ docker compose build
 docker compose up -d
 # → http://localhost:8000/
 ```
-
-## 🚀 Deploy to Vercel
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
-
-1. Fork this repo
-2. Connect to Vercel
-3. Set environment variables:
-   - `SECRET_KEY` — Django secret key
-   - `DATABASE_URL` — Supabase PostgreSQL connection string
-   - `ALLOWED_HOSTS` — your Vercel domain
-4. Deploy!
 
 ## 📊 ML Models
 
