@@ -21,10 +21,10 @@ if str(APPS_DIR.resolve()) not in sys.path:
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
-# ── Installed apps for development ──────────────────────────────────────────
-INSTALLED_APPS += [  # noqa: F405
-    'django_extensions',
-]
+# ── Installed apps for development ─────────────────────────────────────────
+import importlib.util
+if importlib.util.find_spec('django_extensions') is not None:
+    INSTALLED_APPS += ['django_extensions']  # noqa: F405
 
 # ── Show debug toolbar only in development ───────────────────────────────────
 # INTERNAL_IPS = ['127.0.0.1']
