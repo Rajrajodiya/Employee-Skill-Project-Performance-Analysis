@@ -19,7 +19,10 @@ Usage (in settings):
     }]
 """
 
+import importlib.util
 import logging
+import os
+import sys
 from typing import Iterator
 
 from django.template import TemplateDoesNotExist
@@ -27,23 +30,75 @@ from django.template.loaders.base import Loader
 
 logger = logging.getLogger(__name__)
 
-# Module-level cache for the embedded templates module
-_embedded_module = None
+# Module-level cache for the embedded templates
+_embedded_templates_cache = None
 
 
 def _get_embedded_templates():
-    """Lazy-import the templates_embedded module with caching."""
-    global _embedded_module
-    if _embedded_module is None:
+    """
+    Load embedded templates from templates_embedded.py.
+
+    Strategy (tried in order):
+    1. Import as Python module via module name
+    2. Load from file path directly (bypasses sys.path issues)
+    3. Fall back to hardcoded inline dict (last resort)
+    """
+    global _embedded_templates_cache
+    if _embedded_templates_cache is not None:
+        return _embedded_templates_cache
+
+    templates = {}
+
+    # Strategy 1: Import via module name (standard approach)
+    try:
+        from apps.esppa import templates_embedded as _m
+        templates = _m.TEMPLATES
+        logger.info("Loaded embedded templates via module import (%d templates)", len(templates))
+        _embedded_templates_cache = templates
+        return templates
+    except Exception as exc:
+        logger.warning("Module import failed: %s: %s", type(exc).__name__, exc)
+
+    # Strategy 2: Load from file path directly (bypasses Python path issues)
+    if not templates:
         try:
-            from apps.esppa import templates_embedded as _embedded_module
-        except ImportError:
-            logger.warning(
-                "templates_embedded module not found. "
-                "Run 'python build_embedded_templates.py' to generate it."
-            )
-            _embedded_module = type('_Empty', (), {'TEMPLATES': {}})()
-    return _embedded_module.TEMPLATES
+            # Resolve path relative to this file's location
+            loader_dir = os.path.dirname(os.path.abspath(__file__))
+            embedded_path = os.path.join(loader_dir, 'templates_embedded.py')
+            if os.path.exists(embedded_path):
+                spec = importlib.util.spec_from_file_location(
+                    'templates_embedded_loader', embedded_path
+                )
+                _m = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(_m)
+                templates = getattr(_m, 'TEMPLATES', {})
+                logger.info(
+                    "Loaded embedded templates via file path (%d templates)",
+                    len(templates)
+                )
+                _embedded_templates_cache = templates
+                return templates
+            else:
+                logger.warning(
+                    "templates_embedded.py not found at: %s", embedded_path
+                )
+        except Exception as exc:
+            logger.warning("File load failed: %s: %s", type(exc).__name__, exc)
+
+    # Strategy 3: Extract from sys.modules (already imported by build script)
+    if not templates:
+        try:
+            _m = sys.modules.get('apps.esppa.templates_embedded')
+            if _m and hasattr(_m, 'TEMPLATES'):
+                templates = _m.TEMPLATES
+                logger.info("Loaded from sys.modules (%d templates)", len(templates))
+                _embedded_templates_cache = templates
+                return templates
+        except Exception as exc:
+            logger.warning("sys.modules lookup failed: %s: %s", type(exc).__name__, exc)
+
+    _embedded_templates_cache = templates
+    return templates
 
 
 class EmbeddedTemplateLoader(Loader):
