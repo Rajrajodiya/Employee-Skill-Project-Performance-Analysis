@@ -44,7 +44,10 @@ def main():
                 relative = fpath.relative_to(tdir)
                 try:
                     content = fpath.read_text(encoding='utf-8')
-                    all_templates[str(relative)] = content
+                    # Normalize to forward slashes for cross-platform compatibility
+                    # (Windows uses backslashes, Linux/Mac use forward slashes)
+                    key = str(relative).replace('\\', '/')
+                    all_templates[key] = content
                     print(f"  [OK] {relative}")
                 except Exception as e:
                     print(f"  [ERR] {relative}: {e}")
