@@ -61,3 +61,4 @@ DATASET/
 .env.production.local
 
 .vercel
+.env*

@@ -8,9 +8,15 @@ Production settings for ESPPA project.
 """
 
 import os
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 from .base import *  # noqa: F401, F403
+
+# ── Force Vercel to bundle the embedded templates module ────────────────────
+# Vercel's static analyzer only follows direct imports from the settings entry
+# point. The InlineTemplateLoader imports templates_embedded via Django's
+# runtime import_string(), which the analyzer may not trace.
+import apps.esppa.templates_embedded  # noqa: F401
 
 # ── Security overrides ───────────────────────────────────────────────────────
 DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() in ('true', '1', 'yes')
@@ -35,12 +41,17 @@ if _database_url:
     else:
         engine = 'django.db.backends.postgresql'
 
+    # urllib.parse.urlparse does NOT decode percent-encoded characters
+    # (e.g. %40 → @). Decode them manually so psycopg2 gets the real password.
+    _user = unquote(parsed.username) if parsed.username else parsed.username
+    _password = unquote(parsed.password) if parsed.password else parsed.password
+
     DATABASES = {  # noqa: F405
         'default': {
             'ENGINE': engine,
             'NAME': db_name,
-            'USER': parsed.username,
-            'PASSWORD': parsed.password,
+            'USER': _user,
+            'PASSWORD': _password,
             'HOST': parsed.hostname,
             'PORT': parsed.port or '5432',
             'OPTIONS': {

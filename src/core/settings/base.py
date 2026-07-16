@@ -86,6 +86,7 @@ TEMPLATES = [
             ],
             'loaders': [
                 'apps.esppa.template_loader.InlineTemplateLoader',
+                'django.template.loaders.filesystem.Loader',
             ],
         },
     },
