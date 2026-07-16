@@ -3,15 +3,18 @@ Root URL configuration for ESPPA project.
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, reverse_lazy
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
 from django.urls import include
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+
+from apps.esppa.views.auth_views import login_view, register_view
 
 urlpatterns = [
     # Admin
@@ -20,7 +23,9 @@ urlpatterns = [
     # Application views
     path('', include('apps.esppa.urls')),
 
-    # Authentication
+    # Authentication — custom login bypasses template file issues
+    path('accounts/login/', login_view, name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('accounts/', include('django.contrib.auth.urls')),
 
     # REST API
