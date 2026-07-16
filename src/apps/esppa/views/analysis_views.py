@@ -6,7 +6,6 @@ from typing import Dict, Any
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from apps.esppa.services.chart_service import ChartService
 from apps.esppa.views import _get_data_service, _safe_render
 
 logger = logging.getLogger(__name__)
@@ -17,6 +16,8 @@ def analysis_view(request):
     """Render pre-built analytical charts. Uses _safe_render for error boundary."""
 
     def _build_chart_context() -> Dict[str, Any]:
+        # Lazy import — matplotlib is very large and only needed for charts
+        from apps.esppa.services.chart_service import ChartService  # noqa: F811
         df = _get_data_service().load_csv()
         return {
             'department_bar': ChartService.department_bar_chart(df),

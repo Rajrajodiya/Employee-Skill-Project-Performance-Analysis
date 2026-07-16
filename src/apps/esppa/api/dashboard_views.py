@@ -7,7 +7,7 @@ from rest_framework import viewsets, permissions, status, decorators
 from rest_framework.response import Response
 
 from apps.esppa.schemas import DashboardMetricsSerializer
-from apps.esppa.api import _data_service, _employee_service
+from apps.esppa.api import _require_data, _require_employee
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +15,12 @@ logger = logging.getLogger(__name__)
 def _load_metrics() -> Optional[Dict[str, Any]]:
     """Load CSV data and build dashboard metrics. Returns None on known errors."""
     try:
-        df = _data_service.load_csv()
-        metrics = _employee_service.build_dashboard_metrics(df)
+        data_service = _require_data()
+        employee_service = _require_employee()
+        df = data_service.load_csv()
+        metrics = employee_service.build_dashboard_metrics(df)
         return metrics
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, RuntimeError) as exc:
         logger.warning("Dashboard data not found: %s", exc)
         return None
 

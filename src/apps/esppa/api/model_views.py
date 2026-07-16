@@ -5,7 +5,7 @@ import logging
 from rest_framework import viewsets, permissions, status, decorators
 from rest_framework.response import Response
 
-from apps.esppa.api import _ml_service
+from apps.esppa.api import _require_ml
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,10 @@ class ModelAnalysisViewSet(viewsets.ViewSet):
     def compare(self, request):
         """Return model performance metrics for comparison."""
         try:
-            if not _ml_service.models:
-                _ml_service.load_or_train_models()
-            performances = _ml_service.evaluate_all_models()
+            ml_service = _require_ml()
+            if not ml_service.models:
+                ml_service.load_or_train_models()
+            performances = ml_service.evaluate_all_models()
             return Response({
                 name: {'r2_score': m.r2_score, 'mse': m.mse, 'rmse': m.rmse, 'mae': m.mae}
                 for name, m in performances.items()
@@ -36,9 +37,10 @@ class ModelAnalysisViewSet(viewsets.ViewSet):
     def feature_importance(self, request):
         """Return feature importance for the Random Forest model."""
         try:
-            if not _ml_service.models:
-                _ml_service.load_or_train_models()
-            importance = _ml_service.get_feature_importance('random_forest')
+            ml_service = _require_ml()
+            if not ml_service.models:
+                ml_service.load_or_train_models()
+            importance = ml_service.get_feature_importance('random_forest')
             if importance:
                 return Response(importance)
             return Response({'error': 'Feature importance not available'},

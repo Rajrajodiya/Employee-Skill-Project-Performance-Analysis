@@ -1,10 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "cd src && python manage.py collectstatic --noinput --clear",
+  "buildCommand": "pip install -r requirements-prod.txt && cd src && python manage.py collectstatic --noinput --clear",
   "functions": {
     "src/core/wsgi.py": {
-      "runtime": "python3.12",
       "maxDuration": 60,
       "memory": 1024,
       "excludeFiles": "{tests/**,__pycache__/**,*.pyc,*.pyo,logs/**,DATASET/**,media/**,docs/**,.dvc/**,venv/**,node_modules/**,staticfiles/**,*.sqlite3,*.egg-info/**,requirements-dev.txt,.github/**,Makefile,*.bat,package*.json,pyproject.toml,.gitignore}"

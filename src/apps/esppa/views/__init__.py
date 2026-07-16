@@ -41,7 +41,7 @@ def _safe_render(
     except FileNotFoundError:
         logger.exception(log_message)
         messages.error(request, 'Required data not found. Please ensure data is imported.')
-    except (ValueError, KeyError, RuntimeError, ImportError) as exc:
+    except (ValueError, KeyError, RuntimeError, ImportError, AttributeError, TypeError) as exc:
         logger.exception(log_message)
         messages.error(request, f'{error_message} Details: {exc}')
     return render(request, template, {})

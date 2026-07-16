@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from apps.esppa.models import Prediction
 from apps.esppa.schemas import PredictionSerializer, PredictionInputSerializer
-from apps.esppa.api import _ml_service
+from apps.esppa.api import _require_ml
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +28,11 @@ class PredictionViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            if not _ml_service.models:
-                _ml_service.load_or_train_models()
+            ml_service = _require_ml()
+            if not ml_service.models:
+                ml_service.load_or_train_models()
 
-            result = _ml_service.predict(
+            result = ml_service.predict(
                 model_type=serializer.validated_data['model_type'],
                 input_data=serializer.validated_data,
             )
