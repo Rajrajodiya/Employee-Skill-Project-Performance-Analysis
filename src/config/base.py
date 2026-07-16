@@ -134,10 +134,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #  Logging
 # ═════════════════════════════════════════════════════════════════════════════
 
-# Ensure logs directory exists at startup
-LOGS_DIR = PROJECT_ROOT / 'logs'
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -158,9 +154,9 @@ LOGGING = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(PROJECT_ROOT, 'logs', 'esppa.log'),
+            'filename': os.path.join(PROJECT_ROOT, 'server.log'),
             'maxBytes': 10 * 1024 * 1024,  # 10 MB
-            'backupCount': 5,
+            'backupCount': 3,
             'formatter': 'verbose',
         },
     },
