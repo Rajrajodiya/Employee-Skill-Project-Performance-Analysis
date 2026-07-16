@@ -5,7 +5,7 @@
   "functions": {
     "src/core/wsgi.py": {
       "maxDuration": 60,
-      "includeFiles": "src/apps/esppa/templates/**,src/templates/**,static/**"
+      "includeFiles": "src/**/*.html,static/**"
     }
   },
   "routes": [
