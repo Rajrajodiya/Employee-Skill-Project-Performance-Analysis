@@ -1,474 +1,303 @@
-# ESPPA - Employee Skill & Project Performance Analyzer
+# ESPPA — Employee Skill & Project Performance Analyzer
 
-A comprehensive Django web application for analyzing employee performance, productivity, and making AI-powered predictions using machine learning models.
+![Python](https://img.shields.io/badge/Python-3.12+-blue)
+![Django](https://img.shields.io/badge/Django-6.0-green)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+![CI](https://github.com/Rajrajodiya/Employee-Skill-Project-Performance-Analysis/actions/workflows/ci.yml/badge.svg)
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![Django](https://img.shields.io/badge/Django-4.2.7-green.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+A production-grade Django web application for analyzing employee performance, productivity, and making AI-powered predictions using machine learning (Random Forest, XGBoost, Neural Networks).
 
-## 🚀 Features
+---
+
+## ✨ Features
 
 ### 📊 Analytics Dashboard
-- **Real-time Statistics**: Employee count, average performance, salary, and resignation rates
-- **Department Analysis**: Performance comparison across departments
-- **Interactive Charts**: Bar charts, histograms, pie charts, box plots, heatmaps, and scatter plots
-- **Data Visualization**: Beautiful charts using Matplotlib, Seaborn, and Chart.js
+- **Real-time KPIs**: Employee count, average performance, salary, resignation rate
+- **Department Analysis**: Performance and salary comparison across departments
+- **Performance Distribution**: High/medium/low performer breakdown
+- **Interactive Charts**: Matplotlib-generated bar charts, histograms, pie charts
 
 ### 🤖 AI Predictions
-- **Multiple ML Models**: Random Forest, Logistic Regression, and Linear Regression
-- **Performance Prediction**: Predict employee performance scores
-- **Model Comparison**: Compare accuracy, precision, recall, and F1 scores
-- **Feature Importance**: Analyze which factors most influence performance
+- **3 ML Models**: Random Forest, XGBoost, Neural Network (MLP)
+- **Performance Prediction**: Predict employee performance scores from 16 features
+- **Model Comparison**: R², MSE, RMSE, MAE side-by-side with Chart.js visualizations
+- **Feature Importance**: Understand which factors most influence performance
 
 ### 👥 Employee Management
-- **Employee Directory**: Complete employee listing with filtering and sorting
-- **Detailed Profiles**: Comprehensive employee information and metrics
-- **Performance Tracking**: Monitor individual and team performance
+- **Employee Search**: Look up any employee by ID with full details
+- **Performance Tracking**: Monitor individual metrics and satisfaction scores
+- **Quick Actions**: Print reports, make predictions directly from employee view
 
-### 🔐 User Authentication
-- **Secure Login/Registration**: User authentication with profile management
-- **Role-based Access**: Different access levels for different user types
-- **Session Management**: Secure session handling with automatic logout
+### 🔐 User System
+- **Secure Registration/Login**: Django auth with session management
+- **User Profiles**: Department, role, phone, profile picture
+- **Activity History**: Track predictions and analyses per user
 
-## 🛠️ Technology Stack
+### 🛡️ REST API
+- **14 Endpoints**: Full CRUD + custom predict/search/analyze actions
+- **Swagger Docs**: Interactive API documentation at `/api/docs/`
+- **Rate Limited**: 100 requests/minute per user
+- **Versioned**: Namespace-based API versioning
 
-### Backend
-- **Django 4.2.7**: Web framework
-- **Python 3.8+**: Programming language
-- **SQLite**: Database (can be easily changed to PostgreSQL/MySQL)
+---
 
-### Machine Learning
-- **Scikit-learn**: ML algorithms and preprocessing
-- **Pandas**: Data manipulation and analysis
-- **NumPy**: Numerical computing
-- **SciPy**: Scientific computing
-- **Matplotlib & Seaborn**: Data visualization
+## 🏗️ Architecture
 
-### Frontend
-- **Bootstrap 5**: UI framework
-- **Chart.js**: Interactive charts
-- **Font Awesome**: Icons
-- **Custom CSS/JS**: Enhanced styling and functionality
+```
+ESPPA/
+├── src/                         # ← All Django source code
+│   ├── config/                  # Split settings (base/dev/prod)
+│   │   ├── base.py              #   Shared settings (DB, auth, DRF, logging)
+│   │   ├── dev.py               #   Development overrides (DEBUG=True)
+│   │   ├── prod.py              #   Production overrides (PostgreSQL, HTTPS)
+│   │   ├── urls.py              #   Root URL routing
+│   │   ├── wsgi.py              #   WSGI for Gunicorn
+│   │   └── asgi.py              #   ASGI for Uvicorn
+│   ├── esppa/                   # Main Django application
+│   │   ├── models.py            #   Employee, Analysis, Prediction, UserProfile
+│   │   ├── views.py             #   Thin controller views
+│   │   ├── urls.py              #   App URL routing
+│   │   ├── forms.py             #   Django forms with validation
+│   │   ├── admin.py             #   Admin configuration with fieldsets
+│   │   ├── serializers.py       #   DRF serializers (14+ serializers)
+│   │   ├── api_views.py         #   REST API ViewSets + custom actions
+│   │   ├── api_urls.py          #   API routing via DRF DefaultRouter
+│   │   ├── services/            #   Business logic layer
+│   │   │   ├── config.py        #     Centralized constants/thresholds
+│   │   │   ├── data_service.py  #     CSV loading, caching, preprocessing
+│   │   │   ├── ml_service.py    #     ML training, prediction, evaluation
+│   │   │   ├── chart_service.py #     Matplotlib chart generation
+│   │   │   └── employee_service.py # Dashboard KPIs
+│   │   ├── management/          # Custom Django commands
+│   │   │   └── import_employees.py  # Bulk CSV import
+│   │   └── models/              # Persisted ML model pickles
+│   ├── templates/               # HTML templates (Apple design)
+│   │   ├── base.html            #   Base with Tailwind + Apple CSS
+│   │   └── registration/        #   Login template
+│   ├── esppa/templates/esppa/   # App templates (dashboard, analysis, etc.)
+│   └── manage.py                # Django CLI with DJANGO_ENV support
+├── docs/                        # Documentation
+│   ├── README.md                #   This file
+│   ├── DESIGN.md                #   Apple design system spec
+│   └── *.pptx                   #   Project presentation
+├── static/                      # Static assets
+│   ├── employee_data.csv        #   Sample employee dataset
+│   └── style.css                #   Custom styles
+├── manage.py                    # Root wrapper (auto-detects venv)
+├── requirements.txt             # Single master dependency file
+├── Dockerfile                   # Production Docker build
+├── Makefile                     # Common dev commands
+├── pyproject.toml               # Python project metadata
+├── run.bat                      # Windows one-click launcher
+└── .github/workflows/ci.yml     # GitHub Actions CI/CD
+```
 
-### Additional Libraries
-- **Django Crispy Forms**: Form styling
-- **Django Widget Tweaks**: Enhanced form widgets
-- **Pillow**: Image processing
-- **Jupyter**: Interactive analysis notebooks
+### Design Pattern: Service Layer
 
-## 📋 Prerequisites
+Views are **thin controllers** — they never import pandas, sklearn, or matplotlib directly. All business logic lives in the `services/` package:
 
-- Python 3.8 or higher
-- pip (Python package installer)
-- Git (for cloning the repository)
-- Virtual environment (recommended)
+```
+View (request/response)
+  ↓  delegates to
+Service (business logic)
+  ↓  uses
+DataService (CSV loading, preprocessing)
+MLService (model training, prediction)
+ChartService (matplotlib chart generation)
+EmployeeService (dashboard KPI computation)
+```
+
+This separation ensures:
+- **Testability**: Services can be unit-tested without Django
+- **Maintainability**: Change ML logic in one place
+- **Readability**: Views show the "what", services show the "how"
+
+---
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
-```bash
-git clone <repository-url>
-cd Employee-Productivity-Analysis-main
-```
+### Prerequisites
+- Python 3.12+
+- pip
 
-### 2. Set Up Virtual Environment
+### Setup
+
 ```bash
-# Create virtual environment
+# 1. Clone & enter
+git clone https://github.com/Rajrajodiya/Employee-Skill-Project-Performance-Analysis.git
+cd ESPPA
+
+# 2. Create virtual environment
 python -m venv venv
 
-# Activate virtual environment
-# On Windows
+# 3. Activate it
+# Windows:
 venv\Scripts\activate
-
-# On macOS/Linux
+# macOS/Linux:
 source venv/bin/activate
-```
 
-### 3. Install Dependencies
-```bash
+# 4. Install dependencies
 pip install -r requirements.txt
-```
 
-### 4. Database Setup
-```bash
-# Create database migrations
-python manage.py makemigrations
-
-# Apply migrations
+# 5. Database migrations
 python manage.py migrate
-```
 
-### 5. Load Sample Data
-```bash
-# Import employee data from CSV
+# 6. Import sample data
 python manage.py import_employees --clear
-```
 
-### 6. Create Admin User (Optional)
-```bash
+# 7. Create admin (optional)
 python manage.py createsuperuser
-```
 
-### 7. Run Development Server
-```bash
+# 8. Run development server
 python manage.py runserver
 ```
 
-### 8. Access the Application
-- Open your browser and navigate to `http://127.0.0.1:8000/`
-- Register a new account or use superuser credentials
-- Explore the dashboard and features
+### Access
 
-## 📁 Project Structure
+| Page | URL |
+|------|-----|
+| App | http://127.0.0.1:8000 |
+| Admin | http://127.0.0.1:8000/admin |
+| API Docs | http://127.0.0.1:8000/api/docs/ |
+| API (ReDoc) | http://127.0.0.1:8000/api/redoc/ |
 
-```
-Employee-Productivity-Analysis-main/
-├── ESPPA/                          # Django project settings
-│   ├── __init__.py
-│   ├── settings.py                 # Project configuration
-│   ├── urls.py                     # Main URL routing
-│   ├── wsgi.py                     # WSGI configuration
-│   └── asgi.py                     # ASGI configuration
-├── analyzer/                       # Main Django application
-│   ├── __init__.py
-│   ├── admin.py                    # Admin interface configuration
-│   ├── apps.py                     # App configuration
-│   ├── forms.py                    # Form definitions
-│   ├── models.py                   # Database models
-│   ├── urls.py                     # App URL routing
-│   ├── views.py                    # View functions
-│   ├── tests.py                    # Unit tests
-│   ├── management/                 # Custom management commands
-│   │   └── commands/
-│   │       └── import_employees.py # Employee data import command
-│   ├── migrations/                 # Database migrations
-│   └── templatetags/               # Custom template tags
-├── templates/                      # HTML templates
-│   ├── base.html                   # Base template
-│   ├── registration/               # Authentication templates
-│   │   └── login.html
-│   └── analyzer/                   # App-specific templates
-│       ├── dashboard.html
-│       ├── analysis.html
-│       ├── prediction.html
-│       ├── employee_list.html
-│       └── profile.html
-├── static/                         # Static files
-│   ├── employee_data.csv           # Sample employee data
-│   └── style.css                   # Custom CSS
-├── media/                          # User-uploaded files
-│   └── profile_pics/               # Profile pictures
-├── models/                         # Trained ML models
-│   ├── employee_productivity_model.pkl
-│   ├── linear_regression.pkl
-│   ├── logistic_regression.pkl
-│   └── random_forest_performance.pkl
-├── Analysis.ipynb                  # Jupyter notebook for analysis
-├── db.sqlite3                      # SQLite database
-├── manage.py                       # Django management script
-├── requirements.txt                # Python dependencies
-└── README.md                       # Project documentation
+---
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pytest
+
+# With coverage
+pytest --cov=src --cov-report=term-missing
+
+# Specific test file
+pytest src/esppa/tests/
 ```
 
-## 🎯 Usage Guide
+The test suite covers:
+- **Model tests**: Employee creation, string representation, ordering, uniqueness
+- **View tests**: Dashboard response, analysis rendering, prediction flow
+- **Form tests**: Registration validation, prediction form validation
+- **API tests**: Employee endpoints, prediction endpoint, authentication
+- **Service tests**: DataService loading, MLService training/prediction
 
-### Dashboard Overview
-The main dashboard provides:
-- Key performance indicators (KPIs)
-- Quick access to analysis and prediction tools
-- Recent activity overview
-- Navigation to all major features
+---
 
-### Employee Analysis
-1. **Select Analysis Type**: Choose from department, performance, salary, overtime, or satisfaction analysis
-2. **Choose Visualization**: Select chart type (bar, pie, histogram, box plot, heatmap, scatter plot)
-3. **Generate Insights**: View interactive charts and statistical summaries
-4. **Export Results**: Save charts and reports for presentations
+## 🛡️ API Endpoints
 
-### ML Predictions
-1. **Choose Model**: Select from Random Forest, Logistic Regression, or Linear Regression
-2. **Input Data**: Enter employee information through the prediction form
-3. **Get Results**: Receive performance predictions with confidence scores
-4. **Model Metrics**: View accuracy, precision, recall, and F1 scores
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users` | List users (current user only) |
+| GET/PUT/PATCH | `/api/profiles` | User profile CRUD |
+| GET | `/api/employees` | List all employees |
+| GET | `/api/employees/{id}` | Employee detail |
+| GET | `/api/employees/search?id=` | Search by employee ID |
+| GET | `/api/employees/department_summary` | Department-wise counts |
+| GET/POST | `/api/analyses` | Analysis records |
+| POST | `/api/predictions/predict` | Run ML prediction |
+| GET | `/api/dashboard/metrics` | Dashboard KPIs |
+| GET | `/api/dashboard/department_data` | Department analytics |
+| GET | `/api/models/compare` | Model performance comparison |
+| GET | `/api/models/feature_importance` | Feature importance |
 
-### Employee Management
-- **Browse Directory**: Filter and sort employees by various criteria
-- **View Profiles**: Access detailed employee information and metrics
-- **Track Performance**: Monitor individual and team performance trends
+All endpoints require authentication (session or DRF login).
+
+---
+
+## 🤖 Machine Learning
+
+### Models
+
+| Model | Type | Use Case | Hyperparameters |
+|-------|------|----------|-----------------|
+| Random Forest | Ensemble Regression | Performance prediction | n_estimators=100, max_depth=10 |
+| XGBoost | Gradient Boosting | High-accuracy prediction | n_estimators=100, lr=0.1 |
+| Neural Network (MLP) | Deep Learning | Complex patterns | (64, 32) hidden layers, early stopping |
+
+### Evaluation Metrics
+- **R² Score**: Proportion of variance explained
+- **MSE**: Mean squared error
+- **RMSE**: Root mean squared error (interpretable scale)
+- **MAE**: Mean absolute error
+
+Models are persisted as pickle files and loaded on first request. Training happens automatically if no persisted model is found.
+
+---
 
 ## 🔧 Configuration
 
-### Environment Variables
-Create a `.env` file in the project root:
+### Environment Variables (`.env`)
+
 ```env
 SECRET_KEY=your-secret-key-here
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=sqlite:///db.sqlite3
+DJANGO_ENV=dev
 ```
 
-### Database Configuration
-The default setup uses SQLite for development. For production, consider:
+### Makefile Commands
 
-**PostgreSQL**:
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'esppa_db',
-        'USER': 'your_username',
-        'PASSWORD': 'your_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-```
-
-**MySQL**:
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'esppa_db',
-        'USER': 'your_username',
-        'PASSWORD': 'your_password',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-}
-```
-
-## 📊 Data Schema
-
-### Employee Model
-The core employee model includes:
-
-- **Personal Info**: ID, name, age, gender, education level
-- **Work Details**: Department, job title, hire date, years at company
-- **Performance Metrics**: Performance score, monthly salary, work hours
-- **Project Data**: Projects handled, overtime hours, team size
-- **Wellness**: Sick days, remote work frequency, training hours
-- **Career**: Promotions, satisfaction score, resignation status
-
-### Analysis Model
-Stores analysis results with:
-- Analysis type and chart type
-- Generated chart data (JSON format)
-- User association and timestamps
-
-### Prediction Model
-Tracks ML predictions with:
-- Model type and input parameters
-- Prediction results and confidence scores
-- Performance metrics and error rates
-
-## 🤖 Machine Learning Models
-
-### Random Forest Regressor
-- **Purpose**: Primary performance prediction model
-- **Advantages**: Handles non-linear relationships, provides feature importance
-- **Use Case**: Complex pattern recognition in employee data
-
-### Logistic Regression
-- **Purpose**: Binary classification (e.g., resignation prediction)
-- **Advantages**: Interpretable results, probability outputs
-- **Use Case**: Risk assessment and categorical predictions
-
-### Linear Regression
-- **Purpose**: Continuous value prediction
-- **Advantages**: Simple, fast, highly interpretable
-- **Use Case**: Salary estimation and linear trend analysis
-
-### Model Training Process
-1. **Data Preprocessing**: Label encoding, scaling, feature selection
-2. **Train-Test Split**: 80/20 split for model validation
-3. **Model Training**: Automated training with hyperparameter optimization
-4. **Evaluation**: Comprehensive metrics including accuracy, precision, recall
-5. **Model Persistence**: Serialized models saved for production use
-
-## 🧪 Testing
-
-Run the test suite:
 ```bash
-# Run all tests
-python manage.py test
-
-# Run specific app tests
-python manage.py test analyzer
-
-# Run with verbose output
-python manage.py test --verbosity=2
+make install      # Install dependencies
+make migrate      # Run database migrations
+make run          # Start dev server
+make test         # Run test suite
+make seed         # Import employee CSV data
+make superuser    # Create admin user
+make check        # Django system checks (deploy)
+make clean        # Clean cache files
 ```
-
-### Test Coverage
-The test suite covers:
-- Model functionality and validation
-- View responses and permissions
-- Form validation and processing
-- Machine learning model integration
-
-## 📈 Performance Optimization
-
-### Database Optimization
-- **Indexing**: Add indexes for frequently queried fields
-- **Query Optimization**: Use select_related() and prefetch_related()
-- **Pagination**: Implement pagination for large datasets
-
-### ML Model Optimization
-- **Model Caching**: Cache trained models to avoid retraining
-- **Batch Processing**: Process multiple predictions efficiently
-- **Feature Engineering**: Optimize feature selection for better performance
-
-### Frontend Optimization
-- **Static File Compression**: Enable gzip compression
-- **CDN Integration**: Use CDN for static assets
-- **Lazy Loading**: Implement lazy loading for charts and images
-
-## 🔒 Security Features
-
-### Authentication & Authorization
-- Secure password hashing with Django's built-in system
-- Session-based authentication with configurable timeouts
-- CSRF protection on all forms
-- User role management and permissions
-
-### Data Protection
-- Input validation and sanitization
-- SQL injection prevention through ORM
-- XSS protection with Django's template system
-- Secure file upload handling
-
-## 🚀 Deployment
-
-### Production Checklist
-- [ ] Set `DEBUG = False`
-- [ ] Configure production database
-- [ ] Set up static file serving (WhiteNoise or CDN)
-- [ ] Configure HTTPS with SSL certificates
-- [ ] Set up proper logging
-- [ ] Configure email backend
-- [ ] Set secure environment variables
-
-### Deployment Options
-
-#### Heroku
-```bash
-# Install Heroku CLI and login
-heroku create your-app-name
-git push heroku main
-heroku run python manage.py migrate
-heroku run python manage.py import_employees --clear
-```
-
-#### Docker
-```dockerfile
-FROM python:3.9
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8000
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-```
-
-#### Traditional VPS
-1. Set up virtual environment
-2. Configure web server (Nginx/Apache)
-3. Set up WSGI server (Gunicorn/uWSGI)
-4. Configure database
-5. Set up SSL certificates
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the Repository**
-2. **Create Feature Branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Make Changes**
-   - Follow PEP 8 style guidelines
-   - Add tests for new functionality
-   - Update documentation as needed
-4. **Commit Changes**
-   ```bash
-   git commit -m "Add amazing feature"
-   ```
-5. **Push to Branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-6. **Open Pull Request**
-
-### Development Guidelines
-- Write clear, documented code
-- Include unit tests for new features
-- Follow Django best practices
-- Update README for significant changes
-
-## 📝 License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Django Community**: For the excellent web framework
-- **Scikit-learn Team**: For comprehensive ML tools
-- **Bootstrap Team**: For responsive UI components
-- **Contributors**: All developers who contributed to this project
-
-## 📞 Support & Contact
-
-### Getting Help
-- **Issues**: Report bugs and request features on GitHub Issues
-- **Documentation**: Check this README and code comments
-- **Community**: Join discussions in the project repository
-
-### Maintainers
-- **Project Lead**: Rajkumar Rajodiya
-- **Contributors**: See GitHub contributors page
-
-## 🔄 Version History
-
-### v1.0.0 (Current)
-- ✅ Complete Django web application
-- ✅ Multiple ML models for predictions
-- ✅ Interactive analytics dashboard
-- ✅ User authentication system
-- ✅ Employee management features
-- ✅ Comprehensive data visualization
-
-### Planned Features (v1.1.0)
-- 🔄 Advanced ML models (XGBoost, Neural Networks)
-- 🔄 Real-time data streaming
-- 🔄 RESTful API endpoints
-- 🔄 Mobile app integration
-- 🔄 Advanced reporting features
-- 🔄 Performance monitoring dashboard
 
 ---
 
-## 🚀 Quick Commands Reference
+## 🐳 Docker
 
 ```bash
-# Setup
-python -m venv venv && source venv/bin/activate  # Linux/Mac
-python -m venv venv && venv\Scripts\activate     # Windows
-pip install -r requirements.txt
+# Build
+docker build -t esppa .
 
-# Database
-python manage.py makemigrations
-python manage.py migrate
-python manage.py import_employees --clear
-
-# Development
-python manage.py runserver
-python manage.py test
-python manage.py createsuperuser
-
-# Analysis
-jupyter notebook Analysis.ipynb
+# Run
+docker run -e DJANGO_SETTINGS_MODULE=config.prod -p 8000:8000 esppa
 ```
 
-**ESPPA** - Empowering organizations with data-driven employee insights through advanced analytics and machine learning.
+---
+
+## 📈 Performance
+
+- **CSV Caching**: Employee data loaded once per file modification (not per request)
+- **Model Persistence**: ML models trained once, loaded from disk
+- **Database Indexes**: Indexed on employee_id, department, performance_score, resigned
+- **API Throttling**: Rate-limited to protect against abuse
+- **Static Assets**: Served via CDN (Tailwind, Bootstrap, Chart.js, Font Awesome)
+
+---
+
+## 🎨 Design System
+
+The UI follows Apple's web design language (see `docs/DESIGN.md` for full spec):
+
+- **Typography**: SF Pro Display/Text, 17px body copy, negative letter-spacing
+- **Single Accent**: Action Blue (#0066cc) for all interactive elements
+- **Cards**: 18px radius, thin hairline borders, no shadows on chrome
+- **Buttons**: Pill-shaped (9999px radius), with `transform: scale(0.95)` active state
+- **Colors**: Near-black (#1d1d1f) text, parchment (#f5f5f7) background, pure black nav
+- **No gradients**: Atmosphere comes from data visualization, not decorative CSS
+
+---
+
+## 📄 License
+
+MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Run tests (`pytest`)
+4. Commit changes (`git commit -m 'Add amazing feature'`)
+5. Push to branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request

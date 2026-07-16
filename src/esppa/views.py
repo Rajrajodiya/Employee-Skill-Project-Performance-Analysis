@@ -145,9 +145,13 @@ def dashboard_view(request):
         }
         return render(request, 'esppa/dashboard.html', context)
 
-    except Exception as exc:
-        logger.exception("Dashboard error")
-        messages.error(request, f'Error loading dashboard: {exc}')
+    except FileNotFoundError as exc:
+        logger.exception("Dashboard data not found")
+        messages.error(request, 'Employee data file not found. Please ensure data is imported.')
+        return render(request, 'esppa/dashboard.html', {})
+    except (ValueError, KeyError) as exc:
+        logger.exception("Dashboard data processing error")
+        messages.error(request, f'Error processing dashboard data: {exc}')
         return render(request, 'esppa/dashboard.html', {})
 
 
@@ -168,8 +172,12 @@ def analysis_view(request):
             'salary_hist': ChartService.salary_histogram(df),
         }
         return render(request, 'esppa/analysis_result.html', context)
-    except Exception as exc:
-        logger.exception("Analysis error")
+    except FileNotFoundError as exc:
+        logger.exception("Analysis data not found")
+        messages.error(request, 'Employee data file not found. Please ensure data is imported.')
+        return render(request, 'esppa/analysis_result.html', {})
+    except (ValueError, KeyError, RuntimeError) as exc:
+        logger.exception("Analysis generation error")
         messages.error(request, f'Error generating analysis: {exc}')
         return render(request, 'esppa/analysis_result.html', {})
 
@@ -208,9 +216,12 @@ def prediction_view(request):
                     'input_data': _build_display_dict(form),
                 })
 
-            except Exception as exc:
-                logger.exception("Prediction error")
-                messages.error(request, f'Prediction error: {exc}')
+            except ValueError as exc:
+                logger.exception("Prediction input error")
+                messages.error(request, f'Invalid input for prediction: {exc}')
+            except (RuntimeError, ImportError) as exc:
+                logger.exception("Prediction model error")
+                messages.error(request, f'Model error during prediction: {exc}')
     else:
         form = PredictionForm()
 
@@ -237,9 +248,13 @@ def model_analysis_view(request):
                 for name, m in performances.items()
             },
         })
-    except Exception as exc:
-        logger.exception("Model analysis error")
+    except (FileNotFoundError, ValueError) as exc:
+        logger.exception("Model analysis data error")
         messages.error(request, f'Error loading model analysis: {exc}')
+        return render(request, 'esppa/model_analysis.html', {})
+    except (RuntimeError, ImportError) as exc:
+        logger.exception("Model analysis ML error")
+        messages.error(request, f'Model training error: {exc}')
         return render(request, 'esppa/model_analysis.html', {})
 
 

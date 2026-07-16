@@ -5,6 +5,7 @@ Encapsulates all DataFrame operations so views never touch pandas directly.
 
 import os
 import logging
+from functools import lru_cache
 from typing import Optional, Tuple
 
 import pandas as pd
@@ -20,6 +21,37 @@ from .config import (
 
 logger = logging.getLogger(__name__)
 
+# Track CSV modification time for cache invalidation
+_csv_cache: dict = {
+    'path': None,
+    'mtime': None,
+    'dataframe': None,
+}
+
+
+def _load_csv_with_cache(csv_path: str) -> pd.DataFrame:
+    """Load CSV with file-mtime-based cache to avoid re-reading on every request."""
+    global _csv_cache
+    try:
+        current_mtime = os.path.getmtime(csv_path)
+    except OSError:
+        current_mtime = None
+
+    if (_csv_cache['path'] == csv_path
+            and _csv_cache['mtime'] == current_mtime
+            and _csv_cache['dataframe'] is not None):
+        logger.debug("CSV cache hit: %s", csv_path)
+        return _csv_cache['dataframe']
+
+    df = pd.read_csv(csv_path)
+    _csv_cache = {
+        'path': csv_path,
+        'mtime': current_mtime,
+        'dataframe': df,
+    }
+    logger.info("Loaded CSV with %d rows from %s (cached)", len(df), csv_path)
+    return df
+
 
 class DataService:
     """Handles loading, encoding, and scaling of employee CSV data."""
@@ -33,6 +65,7 @@ class DataService:
         """
         Load employee data from a CSV file.
         Falls back to the default path inside STATICFILES_DIRS.
+        Uses file-mtime-based caching to avoid re-reading on every request.
         """
         if csv_path is None:
             csv_path = os.path.join(
@@ -42,8 +75,7 @@ class DataService:
         if not os.path.exists(csv_path):
             raise FileNotFoundError(f"Employee CSV not found at: {csv_path}")
 
-        self.df = pd.read_csv(csv_path)
-        logger.info("Loaded CSV with %d rows from %s", len(self.df), csv_path)
+        self.df = _load_csv_with_cache(csv_path)
         return self.df
 
     def preprocess(self, df: Optional[pd.DataFrame] = None) -> pd.DataFrame:

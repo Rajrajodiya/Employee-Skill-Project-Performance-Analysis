@@ -13,7 +13,7 @@ if exist venv\Scripts\activate.bat (
     echo.
     echo [ERROR] Virtual environment not found at venv\Scripts\activate.bat
     echo         Run: py -m venv venv
-    echo         Then: pip install -r requirements\base.txt -r requirements\dev.txt
+    echo         Then: pip install -r requirements.txt
     echo.
     pause
     exit /b 1

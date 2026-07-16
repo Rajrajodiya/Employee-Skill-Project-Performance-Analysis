@@ -185,41 +185,52 @@ class MLService:
             model_display_name=MODEL_DISPLAY_NAMES.get(model_type, model_type),
         )
 
-    def evaluate_all_models(self) -> Dict[str, ModelMetrics]:
-        """Re-train models on a fresh train/test split and return metrics."""
+    def evaluate_all_models(self, cv_folds: int = 5) -> Dict[str, ModelMetrics]:
+        """
+        Re-train models on a fresh train/test split and return metrics.
+
+        Uses cross-validation (K-fold) for more robust evaluation.
+        Returns average metrics across all folds.
+        """
+        from sklearn.model_selection import cross_validate, KFold
+
         df = self.data_service.load_csv()
         df_encoded = self.data_service.preprocess(df)
         X, y_perf, _ = self.data_service.prepare_features_and_targets(
             df_encoded,
         )
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y_perf,
-            test_size=TEST_SIZE,
-            random_state=RANDOM_SEED,
-        )
-
+        cv = KFold(n_splits=cv_folds, shuffle=True, random_state=RANDOM_SEED)
         results: Dict[str, ModelMetrics] = {}
 
+        def _cross_val_metrics(estimator, X, y) -> ModelMetrics:
+            scores = cross_validate(
+                estimator, X, y,
+                cv=cv,
+                scoring=('r2', 'neg_mean_squared_error', 'neg_mean_absolute_error'),
+                n_jobs=-1,
+            )
+            return ModelMetrics(
+                r2=float(np.mean(scores['test_r2'])),
+                mse=float(np.mean(-scores['test_neg_mean_squared_error'])),
+                rmse=float(np.sqrt(np.mean(-scores['test_neg_mean_squared_error']))),
+                mae=float(np.mean(-scores['test_neg_mean_absolute_error'])),
+            )
+
         # Random Forest
+        logger.info("Cross-validating Random Forest (%d folds)...", cv_folds)
         rf = RandomForestRegressor(
             n_estimators=RF_N_ESTIMATORS,
             max_depth=RF_MAX_DEPTH,
             random_state=RANDOM_SEED,
-            n_jobs=-1,
+            n_jobs=1,  # Already using n_jobs via cross_validate
         )
-        rf.fit(X_train, y_train)
-        y_pred = rf.predict(X_test)
-        results['Random Forest'] = ModelMetrics(
-            r2=r2_score(y_test, y_pred),
-            mse=mean_squared_error(y_test, y_pred),
-            rmse=np.sqrt(mean_squared_error(y_test, y_pred)),
-            mae=mean_absolute_error(y_test, y_pred),
-        )
+        results['Random Forest'] = _cross_val_metrics(rf, X, y_perf)
 
         # XGBoost
         try:
             from xgboost import XGBRegressor
+            logger.info("Cross-validating XGBoost (%d folds)...", cv_folds)
             xgb = XGBRegressor(
                 n_estimators=XGB_N_ESTIMATORS,
                 learning_rate=XGB_LEARNING_RATE,
@@ -227,18 +238,12 @@ class MLService:
                 random_state=RANDOM_SEED,
                 verbosity=0,
             )
-            xgb.fit(X_train, y_train)
-            y_pred_xgb = xgb.predict(X_test)
-            results['XGBoost'] = ModelMetrics(
-                r2=r2_score(y_test, y_pred_xgb),
-                mse=mean_squared_error(y_test, y_pred_xgb),
-                rmse=np.sqrt(mean_squared_error(y_test, y_pred_xgb)),
-                mae=mean_absolute_error(y_test, y_pred_xgb),
-            )
+            results['XGBoost'] = _cross_val_metrics(xgb, X, y_perf)
         except ImportError:
             results['XGBoost'] = ModelMetrics(r2=0, mse=0, rmse=0, mae=0)
 
         # Neural Network
+        logger.info("Cross-validating Neural Network (%d folds)...", cv_folds)
         nn = MLPRegressor(
             hidden_layer_sizes=NN_HIDDEN_LAYER_SIZES,
             max_iter=NN_MAX_ITER,
@@ -247,14 +252,7 @@ class MLService:
             early_stopping=True,
             validation_fraction=0.1,
         )
-        nn.fit(X_train, y_train)
-        y_pred_nn = nn.predict(X_test)
-        results['Neural Network (MLP)'] = ModelMetrics(
-            r2=r2_score(y_test, y_pred_nn),
-            mse=mean_squared_error(y_test, y_pred_nn),
-            rmse=np.sqrt(mean_squared_error(y_test, y_pred_nn)),
-            mae=mean_absolute_error(y_test, y_pred_nn),
-        )
+        results['Neural Network (MLP)'] = _cross_val_metrics(nn, X, y_perf)
 
         return results
 

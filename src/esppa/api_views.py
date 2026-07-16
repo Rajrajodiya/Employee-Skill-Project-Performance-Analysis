@@ -140,9 +140,12 @@ class PredictionViewSet(viewsets.ModelViewSet):
                 'error_rate': result.error_rate,
                 'created_at': prediction.created_at,
             })
-        except Exception as exc:
-            logger.exception("API prediction error")
-            return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except (FileNotFoundError, ValueError) as exc:
+            logger.exception("API prediction input error")
+            return Response({'error': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except (RuntimeError, ImportError) as exc:
+            logger.exception("API prediction model error")
+            return Response({'error': f'Model error: {exc}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class DashboardViewSet(viewsets.ViewSet):
@@ -164,8 +167,12 @@ class DashboardViewSet(viewsets.ViewSet):
                 'medium_performers': metrics.medium_performers,
                 'low_performers': metrics.low_performers,
             }).data)
-        except Exception as exc:
-            return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except FileNotFoundError as exc:
+            return Response({'error': f'Data file not found: {exc}'},
+                            status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as exc:
+            return Response({'error': f'Data processing error: {exc}'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     @decorators.action(detail=False, methods=['get'])
     def department_data(self, request):
@@ -179,8 +186,12 @@ class DashboardViewSet(viewsets.ViewSet):
                 'performance_width': d.performance_width,
                 'salary_inr': d.salary_inr,
             } for d in metrics.department_data])
-        except Exception as exc:
-            return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except FileNotFoundError as exc:
+            return Response({'error': f'Data file not found: {exc}'},
+                            status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as exc:
+            return Response({'error': f'Data processing error: {exc}'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     @decorators.action(detail=False, methods=['get'])
     def demographics(self, request):
@@ -192,8 +203,12 @@ class DashboardViewSet(viewsets.ViewSet):
                 'gender_counts': metrics.gender_counts,
                 'education_counts': metrics.education_counts,
             })
-        except Exception as exc:
-            return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except FileNotFoundError as exc:
+            return Response({'error': f'Data file not found: {exc}'},
+                            status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, KeyError) as exc:
+            return Response({'error': f'Data processing error: {exc}'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class ModelAnalysisViewSet(viewsets.ViewSet):
@@ -211,8 +226,12 @@ class ModelAnalysisViewSet(viewsets.ViewSet):
                 name: {'r2_score': m.r2_score, 'mse': m.mse, 'rmse': m.rmse, 'mae': m.mae}
                 for name, m in performances.items()
             })
-        except Exception as exc:
-            return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except FileNotFoundError as exc:
+            return Response({'error': f'Data file not found: {exc}'},
+                            status=status.HTTP_404_NOT_FOUND)
+        except (ValueError, RuntimeError) as exc:
+            return Response({'error': f'Model evaluation error: {exc}'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @decorators.action(detail=False, methods=['get'])
     def feature_importance(self, request):
@@ -225,5 +244,5 @@ class ModelAnalysisViewSet(viewsets.ViewSet):
                 return Response(importance)
             return Response({'error': 'Feature importance not available'},
                             status=status.HTTP_404_NOT_FOUND)
-        except Exception as exc:
+        except (FileNotFoundError, ValueError, RuntimeError) as exc:
             return Response({'error': str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

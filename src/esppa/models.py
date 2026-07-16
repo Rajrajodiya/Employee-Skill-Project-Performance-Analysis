@@ -37,6 +37,13 @@ class Employee(models.Model):
         ordering = ['employee_id']
         verbose_name = 'Employee'
         verbose_name_plural = 'Employees'
+        indexes = [
+            models.Index(fields=['employee_id'], name='idx_employee_id'),
+            models.Index(fields=['department'], name='idx_department'),
+            models.Index(fields=['performance_score'], name='idx_performance'),
+            models.Index(fields=['resigned'], name='idx_resigned'),
+            models.Index(fields=['department', 'performance_score'], name='idx_dept_perf'),
+        ]
 
     def __str__(self):
         return f'{self.name} (ID: {self.employee_id})'
