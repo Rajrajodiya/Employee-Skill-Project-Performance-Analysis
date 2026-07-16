@@ -4,101 +4,85 @@
 {% block title %}Prediction Result - ESPPA{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">
-                    <i class="fas fa-calculator text-primary"></i>
-                    Prediction Result
-                </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'prediction' %}">Prediction</a></li>
-                        <li class="breadcrumb-item active">Result</li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <h1 class="h2 font-display font-semibold tracking-apple mb-0">
+        <i class="fas fa-calculator text-[#0066cc]"></i>
+        Prediction Result
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'prediction' %}">Prediction</a></li>
+            <li class="breadcrumb-item active">Result</li>
+        </ol>
+    </nav>
+</div>
 
-    <!-- Prediction Result -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-line"></i>
-                        Prediction Result
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="text-center mb-4">
-                                <h4 class="text-primary">Predicted Value</h4>
-                                <div class="display-4 fw-bold text-success">
-                                    {% if prediction.prediction_result %}
-                                        {{ prediction.prediction_result }}
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </div>
-                                <p class="text-muted">Model: {{ prediction.model_type|title }}</p>
+<!-- Prediction Result -->
+<div class="row mb-4 g-4">
+    <div class="col-md-8">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-chart-line"></i>
+                Prediction Result
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="text-center mb-4">
+                            <h6 class="fw-semibold text-apple-ink-muted mb-2">Predicted Value</h6>
+                            <div class="display-4 fw-bold" style="color: #34c759;">
+                                {% if prediction.prediction_result %}
+                                    {{ prediction.prediction_result }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
                             </div>
+                            <p class="text-apple-ink-muted mt-2">Model: {{ prediction.model_type|title }}</p>
                         </div>
-                        <div class="col-md-6">
-                            <div class="row">
-                                <div class="col-6 mb-3">
-                                    <div class="card border-success">
-                                        <div class="card-body text-center">
-                                            <h6 class="card-title text-success">Confidence</h6>
-                                            <h4 class="fw-bold">
-                                                {% if prediction.confidence_score %}
-                                                    {{ prediction.confidence_score|floatformat:3 }}
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </h4>
-                                        </div>
-                                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="card card-apple text-center p-3">
+                                    <h6 class="text-[#34c759] fw-semibold mb-1">Confidence</h6>
+                                    <h4 class="fw-bold mb-0">
+                                        {% if prediction.confidence_score %}
+                                            {{ prediction.confidence_score|floatformat:3 }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </h4>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <div class="card border-info">
-                                        <div class="card-body text-center">
-                                            <h6 class="card-title text-info">Accuracy</h6>
-                                            <h4 class="fw-bold">
-                                                {% if prediction.accuracy %}
-                                                    {{ prediction.accuracy|floatformat:3 }}
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </h4>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card card-apple text-center p-3">
+                                    <h6 class="text-[#5ac8fa] fw-semibold mb-1">Accuracy</h6>
+                                    <h4 class="fw-bold mb-0">
+                                        {% if prediction.accuracy %}
+                                            {{ prediction.accuracy|floatformat:3 }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </h4>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <div class="card border-warning">
-                                        <div class="card-body text-center">
-                                            <h6 class="card-title text-warning">Error Rate</h6>
-                                            <h4 class="fw-bold">
-                                                {% if prediction.error_rate %}
-                                                    {{ prediction.error_rate|floatformat:3 }}
-                                                {% else %}
-                                                    N/A
-                                                {% endif %}
-                                            </h4>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card card-apple text-center p-3">
+                                    <h6 class="text-[#ff9500] fw-semibold mb-1">Error Rate</h6>
+                                    <h4 class="fw-bold mb-0">
+                                        {% if prediction.error_rate %}
+                                            {{ prediction.error_rate|floatformat:3 }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </h4>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <div class="card border-secondary">
-                                        <div class="card-body text-center">
-                                            <h6 class="card-title text-secondary">Model Type</h6>
-                                            <h6 class="fw-bold">{{ prediction.model_type|title }}</h6>
-                                        </div>
-                                    </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card card-apple text-center p-3">
+                                    <h6 class="text-apple-ink-muted fw-semibold mb-1">Model Type</h6>
+                                    <h6 class="fw-bold mb-0">{{ prediction.model_type|title }}</h6>
                                 </div>
                             </div>
                         </div>
@@ -106,138 +90,132 @@
                 </div>
             </div>
         </div>
-        
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-info-circle"></i>
-                        Prediction Details
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm">
-                        <tr>
-                            <td><strong>Model:</strong></td>
-                            <td>{{ prediction.model_type|title }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Created:</strong></td>
-                            <td>{{ prediction.created_at|date:"M d, Y H:i" }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>User:</strong></td>
-                            <td>{{ prediction.created_by.username }}</td>
-                        </tr>
-                    </table>
-                </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-info-circle"></i>
+                Prediction Details
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Model:</strong></td>
+                        <td>{{ prediction.model_type|title }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Created:</strong></td>
+                        <td>{{ prediction.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>User:</strong></td>
+                        <td>{{ prediction.created_by.username }}</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Input Data Summary -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-database"></i>
-                        Input Data Summary
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <h6 class="text-primary">Personal Information</h6>
-                            <ul class="list-unstyled">
-                                <li><strong>Age:</strong> {{ input_data.age }}</li>
-                                <li><strong>Gender:</strong> {{ input_data.gender }}</li>
-                                <li><strong>Education:</strong> {{ input_data.education_level }}</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-3">
-                            <h6 class="text-success">Work Information</h6>
-                            <ul class="list-unstyled">
-                                <li><strong>Department:</strong> {{ input_data.department }}</li>
-                                <li><strong>Job Title:</strong> {{ input_data.job_title }}</li>
-                                <li><strong>Years at Company:</strong> {{ input_data.years_at_company }}</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-3">
-                            <h6 class="text-warning">Performance Metrics</h6>
-                            <ul class="list-unstyled">
-                                <li><strong>Work Hours/Week:</strong> {{ input_data.work_hours_per_week }}</li>
-                                <li><strong>Projects Handled:</strong> {{ input_data.projects_handled }}</li>
-                                <li><strong>Overtime Hours:</strong> {{ input_data.overtime_hours }}</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-3">
-                            <h6 class="text-danger">Additional Factors</h6>
-                            <ul class="list-unstyled">
-                                <li><strong>Monthly Salary:</strong> ₹{{ input_data.monthly_salary_inr|floatformat:0 }} (INR)</li>
-                                <li><strong>Team Size:</strong> {{ input_data.team_size }}</li>
-                                <li><strong>Satisfaction Score:</strong> {{ input_data.employee_satisfaction_score }}</li>
-                            </ul>
-                        </div>
+<!-- Input Data Summary -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-database"></i>
+                Input Data Summary
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <h6 class="fw-semibold mb-2">Personal Information</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Age:</strong> {{ input_data.age }}</li>
+                            <li><strong>Gender:</strong> {{ input_data.gender }}</li>
+                            <li><strong>Education:</strong> {{ input_data.education_level }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="fw-semibold mb-2">Work Information</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Department:</strong> {{ input_data.department }}</li>
+                            <li><strong>Job Title:</strong> {{ input_data.job_title }}</li>
+                            <li><strong>Years at Company:</strong> {{ input_data.years_at_company }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="fw-semibold mb-2">Performance Metrics</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Work Hours/Week:</strong> {{ input_data.work_hours_per_week }}</li>
+                            <li><strong>Projects Handled:</strong> {{ input_data.projects_handled }}</li>
+                            <li><strong>Overtime Hours:</strong> {{ input_data.overtime_hours }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="fw-semibold mb-2">Additional Factors</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Monthly Salary:</strong> ₹{{ input_data.monthly_salary_inr|floatformat:0 }} (INR)</li>
+                            <li><strong>Team Size:</strong> {{ input_data.team_size }}</li>
+                            <li><strong>Satisfaction Score:</strong> {{ input_data.employee_satisfaction_score }}</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Interpretation and Recommendations -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-lightbulb"></i>
-                        Interpretation & Recommendations
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary">Model Interpretation</h6>
-                            {% if prediction.model_type == 'random_forest' %}
-                                <p>The Random Forest model analyzed multiple decision trees to predict performance. This model is particularly good at handling complex, non-linear relationships in the data.</p>
-                            {% elif prediction.model_type == 'logistic_regression' %}
-                                <p>The Logistic Regression model predicted the probability of a binary outcome (e.g., resignation). This model provides interpretable results and is suitable for classification tasks.</p>
-                            {% elif prediction.model_type == 'linear_regression' %}
-                                <p>The Linear Regression model predicted a continuous value based on linear relationships between input features. This is a simple and interpretable baseline model.</p>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-success">Recommendations</h6>
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check-circle text-success me-2"></i>Review the prediction confidence level</li>
-                                <li><i class="fas fa-check-circle text-success me-2"></i>Consider input data quality and completeness</li>
-                                <li><i class="fas fa-check-circle text-success me-2"></i>Use multiple models for comparison</li>
-                                <li><i class="fas fa-check-circle text-success me-2"></i>Monitor prediction accuracy over time</li>
-                            </ul>
-                        </div>
+<!-- Interpretation and Recommendations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-lightbulb"></i>
+                Interpretation & Recommendations
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold mb-2">Model Interpretation</h6>
+                        {% if prediction.model_type == 'random_forest' %}
+                            <p class="small">The Random Forest model analyzed multiple decision trees to predict performance. This model is particularly good at handling complex, non-linear relationships in the data.</p>
+                        {% elif prediction.model_type == 'logistic_regression' %}
+                            <p class="small">The Logistic Regression model predicted the probability of a binary outcome (e.g., resignation). This model provides interpretable results and is suitable for classification tasks.</p>
+                        {% elif prediction.model_type == 'linear_regression' %}
+                            <p class="small">The Linear Regression model predicted a continuous value based on linear relationships between input features. This is a simple and interpretable baseline model.</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold mb-2">Recommendations</h6>
+                        <ul class="list-unstyled small">
+                            <li class="mb-1"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Review the prediction confidence level</li>
+                            <li class="mb-1"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Consider input data quality and completeness</li>
+                            <li class="mb-1"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Use multiple models for comparison</li>
+                            <li class="mb-1"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Monitor prediction accuracy over time</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Action Buttons -->
-    <div class="row">
-        <div class="col-12 text-center">
-            <a href="{% url 'prediction' %}" class="btn btn-primary me-2">
-                <i class="fas fa-calculator"></i>
-                Make Another Prediction
-            </a>
-            <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2">
-                <i class="fas fa-home"></i>
-                Back to Dashboard
-            </a>
-            <a href="{% url 'model_analysis' %}" class="btn btn-success">
-                <i class="fas fa-chart-area"></i>
-                View Model Analysis
-            </a>
-        </div>
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12 text-center">
+        <a href="{% url 'prediction' %}" class="btn btn-apple-primary me-2">
+            <i class="fas fa-calculator"></i>
+            Make Another Prediction
+        </a>
+        <a href="{% url 'dashboard' %}" class="btn btn-apple-secondary me-2">
+            <i class="fas fa-home"></i>
+            Back to Dashboard
+        </a>
+        <a href="{% url 'model_analysis' %}" class="btn btn-apple-primary">
+            <i class="fas fa-chart-area"></i>
+            View Model Analysis
+        </a>
     </div>
 </div>
 {% endblock %} 

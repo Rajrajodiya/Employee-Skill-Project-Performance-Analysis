@@ -4,27 +4,25 @@
 {% block title %}Profile - ESPPA{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1 class="mb-4">
-            <i class="fas fa-user me-2"></i>User Profile
-        </h1>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <h1 class="h2 font-display font-semibold tracking-apple mb-0">
+        <i class="fas fa-user text-[#0066cc]"></i>
+        User Profile
+    </h1>
 </div>
 
-<div class="row">
+<div class="row g-4">
     <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-edit me-2"></i>Edit Profile
-                </h5>
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-edit"></i>
+                Edit Profile
             </div>
             <div class="card-body">
                 <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
                     
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
@@ -39,7 +37,7 @@
                         </div>
                     </div>
                     
-                    <div class="row">
+                    <div class="row g-3">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="{{ form.phone.id_for_label }}" class="form-label">Phone</label>
@@ -55,8 +53,8 @@
                     </div>
                     
                     <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Update Profile
+                        <button type="submit" class="btn btn-apple-primary">
+                            <i class="fas fa-save"></i>Update Profile
                         </button>
                     </div>
                 </form>
@@ -66,11 +64,10 @@
     
     <div class="col-md-4">
         <!-- User Info -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-user-circle me-2"></i>User Information
-                </h6>
+        <div class="card card-apple mb-4">
+            <div class="card-apple-header">
+                <i class="fas fa-user-circle"></i>
+                User Information
             </div>
             <div class="card-body text-center">
                 {% if user.userprofile.profile_picture %}
@@ -79,14 +76,14 @@
                          class="rounded-circle mb-3" 
                          style="width: 100px; height: 100px; object-fit: cover;">
                 {% else %}
-                    <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                    <div class="bg-[#f5f5f7] rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
                          style="width: 100px; height: 100px;">
-                        <i class="fas fa-user fa-3x text-muted"></i>
+                        <i class="fas fa-user fa-3x text-apple-ink-muted"></i>
                     </div>
                 {% endif %}
                 
                 <h5>{{ user.get_full_name|default:user.username }}</h5>
-                <p class="text-muted">{{ user.email }}</p>
+                <p class="text-apple-ink-muted">{{ user.email }}</p>
                 
                 <div class="row text-start">
                     <div class="col-12">
@@ -100,21 +97,20 @@
         </div>
         
         <!-- Quick Stats -->
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>Your Activity
-                </h6>
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-chart-bar"></i>
+                Your Activity
             </div>
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-6">
-                        <div class="h4 text-primary">{{ user.prediction_set.count }}</div>
-                        <small class="text-muted">Predictions</small>
+                        <div class="h4" style="color: #0066cc;">{{ user.prediction_set.count }}</div>
+                        <small class="text-apple-ink-muted">Predictions</small>
                     </div>
                     <div class="col-6">
-                        <div class="h4 text-success">{{ user.analysis_set.count }}</div>
-                        <small class="text-muted">Analyses</small>
+                        <div class="h4" style="color: #34c759;">{{ user.analysis_set.count }}</div>
+                        <small class="text-apple-ink-muted">Analyses</small>
                     </div>
                 </div>
             </div>
@@ -125,16 +121,15 @@
 <!-- Recent Activity -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-history me-2"></i>Recent Activity
-                </h5>
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-history"></i>
+                Recent Activity
             </div>
             <div class="card-body">
-                <div class="row">
+                <div class="row g-4">
                     <div class="col-md-6">
-                        <h6 class="text-primary">Recent Predictions</h6>
+                        <h6 class="fw-semibold mb-3">Recent Predictions</h6>
                         {% if recent_predictions %}
                             <div class="list-group list-group-flush">
                                 {% for pred in recent_predictions %}
@@ -142,20 +137,20 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">{{ pred.get_model_type_display }}</h6>
-                                            <small class="text-muted">{{ pred.created_at|date:"M d, Y H:i" }}</small>
+                                            <small class="text-apple-ink-muted">{{ pred.created_at|date:"M d, Y H:i" }}</small>
                                         </div>
-                                        <span class="badge bg-primary">{{ pred.prediction_result|floatformat:2 }}</span>
+                                        <span class="badge" style="background: #0066cc;">{{ pred.prediction_result|floatformat:2 }}</span>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <p class="text-muted">No predictions yet</p>
+                            <p class="text-apple-ink-muted">No predictions yet</p>
                         {% endif %}
                     </div>
                     
                     <div class="col-md-6">
-                        <h6 class="text-success">Recent Analyses</h6>
+                        <h6 class="fw-semibold mb-3">Recent Analyses</h6>
                         {% if recent_analyses %}
                             <div class="list-group list-group-flush">
                                 {% for analysis in recent_analyses %}
@@ -163,15 +158,15 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-1">{{ analysis.get_analysis_type_display }}</h6>
-                                            <small class="text-muted">{{ analysis.created_at|date:"M d, Y H:i" }}</small>
+                                            <small class="text-apple-ink-muted">{{ analysis.created_at|date:"M d, Y H:i" }}</small>
                                         </div>
-                                        <span class="badge bg-success">{{ analysis.chart_type|title }}</span>
+                                        <span class="badge" style="background: #34c759;">{{ analysis.chart_type|title }}</span>
                                     </div>
                                 </div>
                                 {% endfor %}
                             </div>
                         {% else %}
-                            <p class="text-muted">No analyses yet</p>
+                            <p class="text-apple-ink-muted">No analyses yet</p>
                         {% endif %}
                     </div>
                 </div>
@@ -183,27 +178,27 @@
 <!-- Action Buttons -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card">
+        <div class="card card-apple">
             <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'dashboard' %}" class="btn btn-primary w-100">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <a href="{% url 'dashboard' %}" class="btn btn-apple-primary w-100">
+                            <i class="fas fa-tachometer-alt"></i>Dashboard
                         </a>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'prediction' %}" class="btn btn-success w-100">
-                            <i class="fas fa-wand-magic-sparkles me-2"></i>Make Prediction
+                    <div class="col-md-3">
+                        <a href="{% url 'prediction' %}" class="btn btn-apple-primary w-100">
+                            <i class="fas fa-wand-magic-sparkles"></i>Make Prediction
                         </a>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'analysis' %}" class="btn btn-warning w-100">
-                            <i class="fas fa-chart-bar me-2"></i>Run Analysis
+                    <div class="col-md-3">
+                        <a href="{% url 'analysis' %}" class="btn btn-apple-secondary w-100">
+                            <i class="fas fa-chart-bar"></i>Run Analysis
                         </a>
                     </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{% url 'model_analysis' %}" class="btn btn-info w-100">
-                            <i class="fas fa-brain me-2"></i>Model Analysis
+                    <div class="col-md-3">
+                        <a href="{% url 'model_analysis' %}" class="btn btn-apple-primary w-100">
+                            <i class="fas fa-brain"></i>Model Analysis
                         </a>
                     </div>
                 </div>

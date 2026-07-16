@@ -4,160 +4,149 @@
 {% block title %}Model Analysis - ESPPA{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">
-                    <i class="fas fa-chart-area text-success"></i>
-                    Model Analysis
-                </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Model Analysis</li>
-                    </ol>
-                </nav>
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <h1 class="h2 font-display font-semibold tracking-apple mb-0">
+        <i class="fas fa-chart-area text-[#0066cc]"></i>
+        Model Analysis
+    </h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Model Analysis</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Model Performance Comparison -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-trophy"></i>
+                Model Performance Comparison
+            </div>
+            <div class="card-body">
+                {% if performances %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>R² Score</th>
+                                    <th>MSE</th>
+                                    <th>RMSE</th>
+                                    <th>MAE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for model_name, metrics in performances.items %}
+                                <tr>
+                                    <td><strong>{{ model_name }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-{% if metrics.r2_score > 0.8 %}success{% elif metrics.r2_score > 0.6 %}warning{% else %}danger{% endif %}">
+                                            {{ metrics.r2_score }}
+                                        </span>
+                                    </td>
+                                    <td>{{ metrics.mse }}</td>
+                                    <td>{{ metrics.rmse }}</td>
+                                    <td>{{ metrics.mae }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-apple-ink-muted py-5">
+                        <i class="fas fa-chart-area fa-3x mb-3"></i>
+                        <p>No model performance data available</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Model Performance Comparison -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-trophy"></i>
-                        Model Performance Comparison
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if performances %}
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Model</th>
-                                        <th>R² Score</th>
-                                        <th>MSE</th>
-                                        <th>RMSE</th>
-                                        <th>MAE</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for model_name, metrics in performances.items %}
-                                    <tr>
-                                        <td><strong>{{ model_name }}</strong></td>
-                                        <td>
-                                            <span class="badge bg-{% if metrics.r2_score > 0.8 %}success{% elif metrics.r2_score > 0.6 %}warning{% else %}danger{% endif %}">
-                                                {{ metrics.r2_score }}
-                                            </span>
-                                        </td>
-                                        <td>{{ metrics.mse }}</td>
-                                        <td>{{ metrics.rmse }}</td>
-                                        <td>{{ metrics.mae }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center text-muted py-5">
-                            <i class="fas fa-chart-area fa-3x mb-3"></i>
-                            <p>No model performance data available</p>
-                        </div>
-                    {% endif %}
-                </div>
+<!-- Performance Charts -->
+<div class="row mb-4 g-4">
+    <div class="col-md-6">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-chart-bar"></i>
+                R² Score Comparison
+            </div>
+            <div class="card-body">
+                <canvas id="r2Chart" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
-
-    <!-- Performance Charts -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-chart-bar"></i>
-                        R² Score Comparison
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="r2Chart" width="400" height="200"></canvas>
-                </div>
+    <div class="col-md-6">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-chart-line"></i>
+                Error Metrics Comparison
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-warning text-dark">
-                    <h6 class="card-title mb-0">
-                        <i class="fas fa-chart-line"></i>
-                        Error Metrics Comparison
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="errorChart" width="400" height="200"></canvas>
-                </div>
+            <div class="card-body">
+                <canvas id="errorChart" width="400" height="200"></canvas>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Model Insights -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-lightbulb"></i>
-                        Model Insights
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card border-primary">
-                                <div class="card-header bg-primary text-white">
-                                    <h6 class="mb-0"><i class="fas fa-tree"></i> Random Forest</h6>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Best for performance prediction</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Handles non-linear relationships</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Robust to outliers</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>High accuracy and precision</li>
-                                    </ul>
-                                </div>
+<!-- Model Insights -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-apple">
+            <div class="card-apple-header">
+                <i class="fas fa-lightbulb"></i>
+                Model Insights
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card card-apple">
+                            <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom border-gray-100">
+                                <i class="fas fa-tree text-[#0066cc]"></i>
+                                <h6 class="mb-0 fw-semibold">Random Forest</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Best for performance prediction</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Handles non-linear relationships</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Robust to outliers</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>High accuracy and precision</li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card border-success">
-                                <div class="card-header bg-success text-white">
-                                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> Logistic Regression</h6>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Best for classification tasks</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Predicts resignation probability</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Interpretable results</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Good for binary outcomes</li>
-                                    </ul>
-                                </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-apple">
+                            <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom border-gray-100">
+                                <i class="fas fa-chart-line text-[#0066cc]"></i>
+                                <h6 class="mb-0 fw-semibold">Logistic Regression</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Best for classification tasks</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Predicts resignation probability</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Interpretable results</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Good for binary outcomes</li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card border-warning">
-                                <div class="card-header bg-warning text-dark">
-                                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> Linear Regression</h6>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Simple and interpretable</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Good baseline model</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Fast training and prediction</li>
-                                        <li><i class="fas fa-check-circle text-success me-2"></i>Linear relationships only</li>
-                                    </ul>
-                                </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-apple">
+                            <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom border-gray-100">
+                                <i class="fas fa-chart-bar text-[#0066cc]"></i>
+                                <h6 class="mb-0 fw-semibold">Linear Regression</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled small">
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Simple and interpretable</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Good baseline model</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Fast training and prediction</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-[#34c759] me-2"></i>Linear relationships only</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -165,23 +154,23 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Action Buttons -->
-    <div class="row mt-4">
-        <div class="col-12 text-center">
-            <a href="{% url 'dashboard' %}" class="btn btn-secondary me-2">
-                <i class="fas fa-home"></i>
-                Back to Dashboard
-            </a>
-            <a href="{% url 'prediction' %}" class="btn btn-primary me-2">
-                <i class="fas fa-calculator"></i>
-                Make Predictions
-            </a>
-            <a href="{% url 'analysis' %}" class="btn btn-success">
-                <i class="fas fa-chart-bar"></i>
-                View Analysis
-            </a>
-        </div>
+<!-- Action Buttons -->
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{% url 'dashboard' %}" class="btn btn-apple-secondary me-2">
+            <i class="fas fa-home"></i>
+            Back to Dashboard
+        </a>
+        <a href="{% url 'prediction' %}" class="btn btn-apple-primary me-2">
+            <i class="fas fa-calculator"></i>
+            Make Predictions
+        </a>
+        <a href="{% url 'analysis' %}" class="btn btn-apple-primary">
+            <i class="fas fa-chart-bar"></i>
+            View Analysis
+        </a>
     </div>
 </div>
 
