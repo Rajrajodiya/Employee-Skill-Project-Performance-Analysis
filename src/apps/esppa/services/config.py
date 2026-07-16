@@ -34,6 +34,11 @@ DROP_COLS: List[str] = [
     'Employee_ID', 'Hire_Date', 'Performance_Score', 'Resigned',
 ]
 
+# Numerical features used for model input (excludes target column)
+FEATURE_NUMERICAL_COLS: List[str] = [
+    c for c in NUMERICAL_COLS if c not in DROP_COLS
+]
+
 # ── Model hyper-parameters ───────────────────────────────────────────────────
 RANDOM_SEED: int = 42
 

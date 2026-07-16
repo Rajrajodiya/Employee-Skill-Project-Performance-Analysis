@@ -1,14 +1,14 @@
 # ═════════════════════════════════════════════════════════════════════════════
 #  ESPPA — Production Dockerfile
 #  Build:  docker build -t esppa .
-#  Run:    docker run -e DJANGO_SETTINGS_MODULE=config.prod -p 8000:8000 esppa
+#  Run:    docker run -e DJANGO_SETTINGS_MODULE=core.settings.prod -p 8000:8000 esppa
 # ═════════════════════════════════════════════════════════════════════════════
 
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    DJANGO_SETTINGS_MODULE=config.prod
+    DJANGO_SETTINGS_MODULE=core.settings.prod
 
 WORKDIR /app
 
@@ -39,5 +39,5 @@ EXPOSE 8000
 
 # ── Run gunicorn from src/ ──────────────────────────────────────────────────
 WORKDIR /app/src
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
+CMD ["gunicorn", "core.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
 

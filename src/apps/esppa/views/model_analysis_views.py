@@ -16,7 +16,7 @@ def model_analysis_view(request):
 
     def _build_context() -> dict:
         _load_ml_models()
-        performances = _get_ml_service().evaluate_all_models()
+        performances = _get_ml_service().evaluate_persisted_models()
         return {
             'performances': {
                 name: {

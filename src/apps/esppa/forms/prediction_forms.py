@@ -53,7 +53,7 @@ class PredictionForm(forms.ModelForm):
 
     model_type = forms.ChoiceField(
         choices=Prediction.MODEL_TYPES,
-        widget=forms.Select(attrs={'class': 'form-control'}),
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
     )
 
     age = forms.IntegerField(widget=forms.NumberInput(attrs=_field_attrs('age')))

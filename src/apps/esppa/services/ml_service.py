@@ -9,17 +9,14 @@ Features three modern models:
 import os
 import logging
 import pickle
+import copy
 from typing import Any, Dict, Optional
 
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
-from sklearn.metrics import (
-    mean_squared_error,
-    mean_absolute_error,
-    r2_score,
-)
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
 from .config import (
     RANDOM_SEED,
@@ -36,6 +33,8 @@ from .config import (
     MODEL_ACCURACY,
     MODEL_ERROR_RATE,
     MODEL_DISPLAY_NAMES,
+    CATEGORICAL_COLS,
+    NUMERICAL_COLS,
 )
 from .data_service import DataService
 
@@ -223,7 +222,7 @@ class MLService:
             n_estimators=RF_N_ESTIMATORS,
             max_depth=RF_MAX_DEPTH,
             random_state=RANDOM_SEED,
-            n_jobs=1,  # Already using n_jobs via cross_validate
+            n_jobs=1,
         )
         results['Random Forest'] = _cross_val_metrics(rf, X, y_perf)
 
@@ -256,6 +255,59 @@ class MLService:
 
         return results
 
+    def evaluate_persisted_models(self) -> Dict[str, ModelMetrics]:
+        """
+        Evaluate already-loaded models on a test split (no re-training).
+        Preserves the loaded scaler/encoders so evaluation matches what
+        predict() would produce — no scaler re-fit drift.
+        """
+        if not self.models or all(v is None for v in self.models.values()):
+            self.load_or_train_models()
+
+        # Snapshot the loaded scaler/encoders before preprocessing re-fits them
+        saved_scaler = copy.deepcopy(self.data_service.scaler)
+        saved_encoders = copy.deepcopy(self.data_service.label_encoders)
+
+        df = self.data_service.load_csv()
+        df_encoded = self.data_service.preprocess(df)
+
+        # Restore the original scaler/encoders so evaluation uses training params
+        if saved_scaler is not None:
+            self.data_service.set_encoders_and_scaler(
+                saved_encoders, saved_scaler,
+            )
+
+        X, y_perf, _ = self.data_service.prepare_features_and_targets(
+            df_encoded,
+        )
+        _, X_test, _, y_test = train_test_split(
+            X, y_perf,
+            test_size=TEST_SIZE,
+            random_state=RANDOM_SEED,
+        )
+
+        results: Dict[str, ModelMetrics] = {}
+        name_map = {
+            'random_forest': 'Random Forest',
+            'xgboost': 'XGBoost',
+            'neural_network': 'Neural Network (MLP)',
+        }
+
+        for model_key, display_name in name_map.items():
+            model = self.models.get(model_key)
+            if model is None:
+                results[display_name] = ModelMetrics(r2=0, mse=0, rmse=0, mae=0)
+                continue
+            y_pred = model.predict(X_test)
+            results[display_name] = ModelMetrics(
+                r2=float(r2_score(y_test, y_pred)),
+                mse=float(mean_squared_error(y_test, y_pred)),
+                rmse=float(np.sqrt(mean_squared_error(y_test, y_pred))),
+                mae=float(mean_absolute_error(y_test, y_pred)),
+            )
+
+        return results
+
     def get_feature_importance(self, model_type: str) -> Optional[Dict[str, float]]:
         """Return feature importance for tree-based models."""
         model = self.models.get(model_type)
@@ -281,8 +333,12 @@ class MLService:
         return None
 
     def _build_feature_vector(self, input_data: Dict[str, Any]) -> list:
-        """Build a single feature vector from a flat dict of raw values."""
-        numerical_features = [
+        """Build a single feature vector from a flat dict of raw values.
+
+        Applies the same transformations (label encoding + MinMax scaling)
+        that were used during training — without this, predictions are wrong.
+        """
+        numerical_raw = [
             input_data.get('age', 0),
             input_data.get('years_at_company', 0),
             input_data.get('monthly_salary', 0),
@@ -304,14 +360,16 @@ class MLService:
             input_data.get('education_level', ''),
         ]
 
+        # Apply same transformations as during training
+        numerical_scaled = self.data_service.scale_numerical_features(numerical_raw)
         categorical_encoded = self.data_service.encode_categorical_features(
             categorical_raw,
         )
 
-        return numerical_features + categorical_encoded
+        return numerical_scaled + categorical_encoded
 
     def _persist_models(self) -> None:
-        """Save all trained models to the models/ directory."""
+        """Save models, scaler, and label encoders to the models/ directory."""
         os.makedirs(MODELS_DIR, exist_ok=True)
         for name, model in self.models.items():
             if model is None:
@@ -321,8 +379,17 @@ class MLService:
             with open(path, 'wb') as f:
                 pickle.dump(model, f)
 
+        # Persist scaler and label encoders alongside models
+        scaler_path = os.path.join(MODELS_DIR, 'scaler.pkl')
+        with open(scaler_path, 'wb') as f:
+            pickle.dump(self.data_service.scaler, f)
+
+        encoders_path = os.path.join(MODELS_DIR, 'label_encoders.pkl')
+        with open(encoders_path, 'wb') as f:
+            pickle.dump(self.data_service.label_encoders, f)
+
     def _load_persisted_models(self) -> bool:
-        """Attempt to load models from disk. Returns True on success."""
+        """Load models, scaler, and label encoders from disk. Returns True on success."""
         loaded_any = False
         for name in self.MODEL_NAMES:
             file_name = self.MODEL_FILE_NAMES.get(name, f'{name}.pkl')
@@ -336,4 +403,20 @@ class MLService:
                     logger.warning("Failed to load %s: %s", path, exc)
             else:
                 self.models[name] = None
+
+        # Load scaler and label encoders (required for correct prediction)
+        scaler_path = os.path.join(MODELS_DIR, 'scaler.pkl')
+        if os.path.exists(scaler_path):
+            try:
+                with open(scaler_path, 'rb') as f:
+                    scaler = pickle.load(f)
+                encoders_path = os.path.join(MODELS_DIR, 'label_encoders.pkl')
+                encoders = {}
+                if os.path.exists(encoders_path):
+                    with open(encoders_path, 'rb') as f:
+                        encoders = pickle.load(f)
+                self.data_service.set_encoders_and_scaler(encoders, scaler)
+            except Exception as exc:
+                logger.warning("Failed to load scaler/encoders: %s", exc)
+
         return loaded_any

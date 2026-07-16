@@ -16,6 +16,7 @@ from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from .config import (
     CATEGORICAL_COLS,
     NUMERICAL_COLS,
+    FEATURE_NUMERICAL_COLS,
     DROP_COLS,
 )
 
@@ -93,8 +94,8 @@ class DataService:
             self.label_encoders[col] = le
 
         self.scaler = MinMaxScaler()
-        df_encoded[NUMERICAL_COLS] = self.scaler.fit_transform(
-            df_encoded[NUMERICAL_COLS]
+        df_encoded[FEATURE_NUMERICAL_COLS] = self.scaler.fit_transform(
+            df_encoded[FEATURE_NUMERICAL_COLS]
         )
 
         logger.info("Preprocessing complete: %d features", df_encoded.shape[1])
@@ -114,6 +115,15 @@ class DataService:
         y_resigned = data['Resigned'].astype(int)
         return X, y_performance, y_resigned
 
+    def set_encoders_and_scaler(
+        self,
+        label_encoders: dict,
+        scaler: MinMaxScaler,
+    ) -> None:
+        """Restore fitted encoders and scaler for prediction (loaded from disk)."""
+        self.label_encoders = label_encoders
+        self.scaler = scaler
+
     def encode_categorical_features(self, raw_values: list) -> list:
         """Encode a list of raw categorical values using the fitted label encoders."""
         encoded = []
@@ -127,3 +137,10 @@ class DataService:
             except (ValueError, TypeError):
                 encoded.append(0)
         return encoded
+
+    def scale_numerical_features(self, raw_values: list) -> list:
+        """Scale numerical features using the fitted MinMaxScaler."""
+        if self.scaler is None:
+            return raw_values
+        scaled = self.scaler.transform([raw_values])[0]
+        return [float(v) for v in scaled]
