@@ -6,14 +6,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
-
-from apps.esppa.views.auth_views import login_view
 
 urlpatterns = [
     # Admin
@@ -22,9 +19,7 @@ urlpatterns = [
     # Application views
     path('', include('apps.esppa.urls')),
 
-    # Authentication — custom login bypasses template file issues
-    path('accounts/login/', login_view, name='login'),
-    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    # Authentication (templates loaded from embedded Python module)
     path('accounts/', include('django.contrib.auth.urls')),
 
     # REST API
