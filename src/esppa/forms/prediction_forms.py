@@ -1,44 +1,10 @@
+"""
+Prediction form — single responsibility: ML prediction input with validation.
+"""
+
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import UserProfile, Prediction
 
-
-class UserRegistrationForm(UserCreationForm):
-    """Custom user registration form with extended profile fields."""
-    email = forms.EmailField(required=True)
-    first_name = forms.CharField(max_length=30, required=True)
-    last_name = forms.CharField(max_length=30, required=True)
-    department = forms.CharField(max_length=100, required=False)
-    role = forms.CharField(max_length=100, required=False)
-    phone = forms.CharField(max_length=20, required=False)
-
-    class Meta:
-        model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-
-        if commit:
-            user.save()
-            UserProfile.objects.create(
-                user=user,
-                department=self.cleaned_data.get('department', ''),
-                role=self.cleaned_data.get('role', ''),
-                phone=self.cleaned_data.get('phone', '')
-            )
-        return user
-
-
-class UserProfileForm(forms.ModelForm):
-    """Form for updating user profile."""
-    class Meta:
-        model = UserProfile
-        fields = ['department', 'role', 'phone', 'profile_picture']
+from esppa.models import Prediction
 
 
 class PredictionForm(forms.ModelForm):
@@ -145,19 +111,3 @@ class PredictionForm(forms.ModelForm):
             self.add_error('employee_satisfaction_score', 'Satisfaction score must be between 1.0 and 5.0.')
 
         return cleaned_data
-
-
-class AnalysisForm(forms.Form):
-    """Form for selecting analysis type and chart type."""
-    analysis_type = forms.ChoiceField(
-        choices=[('department', 'Department Analysis'), ('performance', 'Performance Analysis'),
-                 ('salary', 'Salary Analysis'), ('overtime', 'Overtime Analysis'),
-                 ('satisfaction', 'Satisfaction Analysis'), ('overall', 'Overall Analysis')],
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
-    chart_type = forms.ChoiceField(
-        choices=[('bar', 'Bar Chart'), ('histogram', 'Histogram'), ('pie', 'Pie Chart'),
-                 ('box', 'Box Plot'), ('heatmap', 'Heatmap'), ('scatter', 'Scatter Plot'),
-                 ('line', 'Line Chart')],
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )

@@ -1,58 +1,10 @@
 """
-DRF serializers for the ESPPA API.
-Provides full CRUD serialization for all core models.
+Prediction serializers — single responsibility: prediction data serialization and input validation.
 """
 
 from rest_framework import serializers
-from django.contrib.auth.models import User
 
-from .models import Employee, Analysis, Prediction, UserProfile
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
-        read_only_fields = ['id', 'date_joined']
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username', read_only=True)
-    email = serializers.EmailField(source='user.email', read_only=True)
-
-    class Meta:
-        model = UserProfile
-        fields = ['id', 'username', 'email', 'department', 'role',
-                  'phone', 'profile_picture', 'created_at']
-        read_only_fields = ['id', 'created_at']
-
-
-class EmployeeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Employee
-        fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at']
-
-
-class EmployeeListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Employee
-        fields = ['employee_id', 'name', 'department', 'job_title',
-                  'performance_score', 'monthly_salary_inr', 'resigned']
-
-
-class AnalysisSerializer(serializers.ModelSerializer):
-    created_by_name = serializers.CharField(source='created_by.username', read_only=True)
-
-    class Meta:
-        model = Analysis
-        fields = ['id', 'analysis_type', 'chart_type', 'chart_data',
-                  'created_by', 'created_by_name', 'created_at']
-        read_only_fields = ['id', 'created_by', 'created_at']
-
-    def create(self, validated_data):
-        validated_data['created_by'] = self.context['request'].user
-        return super().create(validated_data)
+from esppa.models import Prediction
 
 
 class PredictionSerializer(serializers.ModelSerializer):
@@ -107,13 +59,3 @@ class PredictionInputSerializer(serializers.Serializer):
     training_hours = serializers.IntegerField(min_value=0)
     promotions = serializers.IntegerField(min_value=0)
     employee_satisfaction_score = serializers.FloatField(min_value=1.0, max_value=5.0)
-
-
-class DashboardMetricsSerializer(serializers.Serializer):
-    total_employees = serializers.IntegerField()
-    avg_performance = serializers.FloatField()
-    avg_salary_inr = serializers.FloatField()
-    resignation_rate = serializers.FloatField()
-    high_performers = serializers.IntegerField()
-    medium_performers = serializers.IntegerField()
-    low_performers = serializers.IntegerField()
