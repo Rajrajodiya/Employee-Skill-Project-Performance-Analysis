@@ -3,18 +3,17 @@ Root URL configuration for ESPPA project.
 """
 
 from django.contrib import admin
-from django.urls import path, include, reverse_lazy
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from django.urls import include
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
 
-from apps.esppa.views.auth_views import login_view, register_view
+from apps.esppa.views.auth_views import login_view
 
 urlpatterns = [
     # Admin

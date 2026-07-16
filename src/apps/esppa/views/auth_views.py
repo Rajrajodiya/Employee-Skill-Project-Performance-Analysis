@@ -7,7 +7,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import HttpResponse
-from django.template import Template, Context
+from django.template import Template, RequestContext
 from django.urls import reverse
 
 from apps.esppa.forms import UserRegistrationForm
@@ -113,7 +113,7 @@ def login_view(request):
         form = AuthenticationForm(request)
 
     template = Template(_LOGIN_TEMPLATE)
-    context = Context({'form': form})
+    context = RequestContext(request, {'form': form})
     rendered = template.render(context)
     return HttpResponse(rendered)
 
