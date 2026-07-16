@@ -3,29 +3,19 @@
   "version": 2,
   "name": "esppa",
   "buildCommand": "cd src && python manage.py collectstatic --noinput --clear",
-  "outputDirectory": ".",
-  "builds": [
-    {
-      "src": "src/core/wsgi.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "300mb",
-        "runtime": "python3.12"
-      }
+  "functions": {
+    "src/core/wsgi.py": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "excludeFiles": "{tests/**,__pycache__/**,logs/**,DATASET/**,media/**,docs/**,.dvc/**,venv/**}"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/(.*)",
       "dest": "src/core/wsgi.py"
     }
   ],
-  "functions": {
-    "src/core/wsgi.py": {
-      "maxDuration": 60,
-      "excludeFiles": "{tests/**,__pycache__/**,logs/**,DATASET/**,media/**,docs/**,.dvc/**,venv/**}"
-    }
-  },
   "env": {
     "DJANGO_SETTINGS_MODULE": "core.settings.prod",
     "DJANGO_ENV": "prod",
