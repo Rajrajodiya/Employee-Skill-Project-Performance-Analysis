@@ -12,12 +12,13 @@ from urllib.parse import urlparse, unquote
 
 from .base import *  # noqa: F401, F403
 
-# ── Force Vercel to bundle the embedded templates module ────────────────────
-# Vercel's static analyzer only follows direct imports from the settings entry
-# point. The InlineTemplateLoader imports templates_embedded via Django's
-# runtime import_string(), which the analyzer may not trace.
-import apps.esppa.templates_embedded  # noqa: F401
-
+# ── Force Vercel to bundle the self-contained inline template loader ─────────
+# Vercel's static analyzer only includes .py files that are DIRECTLY imported
+# from the settings entry point. The TEMPLATES config references the loader
+# via a string ('apps.esppa.template_loader.InlineTemplateLoader') which
+# Django resolves at runtime via import_string(). Vercel's analyzer does NOT
+# trace runtime string imports, so the module is excluded from the bundle
+# unless we import it explicitly here.
 # ── Security overrides ───────────────────────────────────────────────────────
 DEBUG = os.environ.get('DJANGO_DEBUG', 'false').lower() in ('true', '1', 'yes')
 
