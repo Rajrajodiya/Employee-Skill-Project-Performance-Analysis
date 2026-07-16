@@ -1,12 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "buildCommand": "pip install -r requirements-prod.txt && python build_embedded_templates.py && cd src && python manage.py migrate --noinput && python manage.py collectstatic --noinput --clear",
+  "buildCommand": "pip install -r requirements-prod.txt && cd src && python manage.py migrate --noinput && python manage.py collectstatic --noinput --clear",
   "functions": {
     "src/core/wsgi.py": {
       "maxDuration": 60,
-      "includeFiles": "{src/apps/esppa/templates/**,src/templates/**}",
-      "excludeFiles": "{tests/**,__pycache__/**,*.pyc,*.pyo,logs/**,DATASET/**,media/**,docs/**,.dvc/**,venv/**,node_modules/**,staticfiles/**,*.sqlite3,*.egg-info/**,requirements-dev.txt,.github/**,Makefile,*.bat,package*.json,pyproject.toml,.gitignore}"
+      "includeFiles": "{src/apps/esppa/templates/**,src/templates/**}"
     }
   },
   "routes": [
@@ -24,10 +23,6 @@
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "core.settings.prod",
-    "DJANGO_ENV": "prod",
-    "VERCEL": "1",
-    "SECRET_KEY": "vercel-build-placeholder-change-in-dashboard",
-    "VERCEL_SUPPORT_LARGE_FUNCTIONS": "1",
-    "DATABASE_URL": "postgresql://neondb_owner:npg_qBv7b0RnUtoG@ep-billowing-grass-at45kqjn.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require"
+    "VERCEL": "1"
   }
 }
